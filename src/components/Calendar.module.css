@@ -1,0 +1,50 @@
+.calendar {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.row {
+    display: flex;
+}
+
+.col {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.cell {
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.disabled {
+    background-color: #f0f0f0;
+}
+
+.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.number {
+    font-size: 16px;
+}
+
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
