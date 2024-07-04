@@ -1,9 +1,10 @@
 import AvailabilityForm from "@/components/AvailabilityForm";
 import Calendar from "@/components/Calendar";
 import { useEffect, useState } from "react";
+import { isSameDay } from "date-fns";
+import axios from "axios";
 
 import styles from "./availability.module.css";
-import { isSameDay } from "date-fns";
 
 export type DayAvailability = {
   id: number;
@@ -21,9 +22,10 @@ export default function Availability() {
     const fetchAvailability = async () => {
       try {
         const userId = 1; // Replace with actual user ID from context or props
-        const response = await fetch(`/api/availability?userId=${userId}`);
-        const data = await response.json();
-        setAvailability(data);
+        const response = await axios.get("/api/availability", {
+          params: { userId },
+        });
+        setAvailability(response.data);
       } catch (error) {
         console.error("Error fetching availability:", error);
       }

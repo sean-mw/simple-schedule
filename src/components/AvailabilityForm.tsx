@@ -3,6 +3,7 @@ import { DayAvailability } from "@/pages/availability";
 import { format } from "date-fns";
 
 import styles from "./AvailabilityForm.module.css";
+import axios from "axios";
 
 type AvailabilityFormProps = {
   date: Date;
@@ -18,6 +19,9 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [notes, setNotes] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (dayAvailability) {
@@ -33,20 +37,70 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
     }
   }, [date, dayAvailability]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const availability = {
-      date,
-      startTime,
-      endTime,
-      notes,
+    setIsLoading(true);
+    setIsSuccess(false);
+    setErrorMessage("");
+
+    const timeStringToDate = (timeString: string) => {
+      const [hours, minutes] = timeString.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours);
+      date.setMinutes(minutes);
+      date.setSeconds(0);
+      return date;
     };
-    // TODO: handle the form submission
-    console.log("Availability Submitted:", availability);
+
+    const availability = {
+      day: date,
+      startTime: timeStringToDate(startTime),
+      endTime: timeStringToDate(endTime),
+      notes: notes,
+    };
+
+    try {
+      await axios.post("/api/availability", availability);
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 2000);
+    } catch (error) {
+      setErrorMessage("Failed to submit availability. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className={styles.container}>
+      {isLoading && (
+        <div className={styles.spinnerOverlay}>
+          <div className={styles.spinner}></div>
+        </div>
+      )}
+      {isSuccess && !isLoading && (
+        <div className={styles.checkmarkOverlay}>
+          <svg
+            className={styles.checkmark}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 52 52"
+          >
+            <circle
+              className={styles.checkmark__circle}
+              cx="26"
+              cy="26"
+              r="25"
+              fill="none"
+            />
+            <path
+              className={styles.checkmark__check}
+              fill="none"
+              d="M14.1 27.2l7.1 7.2 16.7-16.8"
+            />
+          </svg>
+        </div>
+      )}
       <h2 className={styles.heading}>Availability for {date.toDateString()}</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
@@ -85,10 +139,11 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
             />
           </label>
         </div>
-        <button type="submit" className={styles.button}>
+        <button type="submit" className={styles.button} disabled={isLoading}>
           Submit
         </button>
       </form>
+      {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
     </div>
   );
 };
