@@ -12,15 +12,21 @@ import {
   addMonths,
 } from "date-fns";
 import classNames from "classnames";
+import { DayAvailability } from "@/pages/availability";
 
 import styles from "./Calendar.module.css";
 
 interface CalendarProps {
+  availability: DayAvailability[];
   selectedDate: Date;
   onDateChange: (date: Date) => void;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateChange }) => {
+const Calendar: React.FC<CalendarProps> = ({
+  availability,
+  selectedDate,
+  onDateChange,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
 
   const monthStart = startOfMonth(currentMonth);
@@ -45,11 +51,15 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateChange }) => {
     for (let i = 0; i < 7; i++) {
       const formattedDate = format(day, dateFormat);
       const dayClone = new Date(day);
+      const isAvailable = availability.some((a) => {
+        return isSameDay(a.day, day);
+      });
       days.push(
         <div
           className={classNames(styles.col, styles.cell, {
             [styles.disabled]: !isSameMonth(day, monthStart),
             [styles.selected]: isSameDay(day, selectedDate),
+            [styles.available]: isAvailable,
           })}
           key={dayClone.toString()}
           onClick={() => onDateChange(dayClone)}

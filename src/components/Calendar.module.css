@@ -38,6 +38,11 @@
     color: white;
 }
 
+.available:not(.selected) {
+    background-color: green;
+    color: white;
+}
+
 .number {
     font-size: 16px;
 }

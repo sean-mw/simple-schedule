@@ -1,14 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { DayAvailability } from "@/pages/availability";
+import { format } from "date-fns";
+
 import styles from "./AvailabilityForm.module.css";
 
 type AvailabilityFormProps = {
   date: Date;
+  dayAvailability?: DayAvailability;
 };
 
-const AvailabilityForm: React.FC<AvailabilityFormProps> = ({ date }) => {
+const formatTime = (date: Date) => format(date, "HH:mm:ss");
+
+const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
+  date,
+  dayAvailability,
+}) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (dayAvailability) {
+      if (dayAvailability.startTime) {
+        setStartTime(formatTime(dayAvailability.startTime));
+      }
+      if (dayAvailability.endTime) {
+        setEndTime(formatTime(dayAvailability.endTime));
+      }
+    } else {
+      setStartTime("");
+      setEndTime("");
+    }
+  }, [date, dayAvailability]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

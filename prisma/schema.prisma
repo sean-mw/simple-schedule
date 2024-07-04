@@ -1,0 +1,32 @@
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id             Int            @id @default(autoincrement())
+    firstName      String
+    lastName       String
+    email          String         @unique
+    passwordHash   String
+    isAdmin        Boolean
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    availabilities Availability[]
+}
+
+model Availability {
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    day       DateTime
+    startTime DateTime
+    endTime   DateTime
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
