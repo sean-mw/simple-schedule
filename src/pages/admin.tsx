@@ -8,10 +8,15 @@ export default function Admin() {
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAddEmployee = (employee: Employee) => {
     const email = employee.email;
-    if (email && !employees.some((e) => e.email === email)) {
+    const existingEmployee = employees.find((e) => e.email === email);
+    if (existingEmployee) {
+      setErrorMessage("Employee already exists");
+      setTimeout(() => setErrorMessage(""), 3000);
+    } else {
       setEmployees([...employees, employee]);
     }
   };
@@ -33,6 +38,9 @@ export default function Admin() {
   const handleEmployeeSelection = (employee: Employee) => {
     if (selectedEmployees.includes(employee)) {
       setSelectedEmployees(selectedEmployees.filter((e) => e !== employee));
+      if (selectAll) {
+        setSelectAll(false);
+      }
     } else {
       setSelectedEmployees([...selectedEmployees, employee]);
     }
@@ -44,6 +52,7 @@ export default function Admin() {
       <button className={styles.button} onClick={() => setShowModal(true)}>
         Add Employee
       </button>
+      {errorMessage && <div className={styles.error}>{errorMessage}</div>}
       {employees.length > 0 && (
         <>
           <div className={styles.formGroup}>
