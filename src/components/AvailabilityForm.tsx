@@ -1,8 +1,7 @@
+import styles from "./AvailabilityForm.module.css";
 import React, { useEffect, useState } from "react";
 import { DayAvailability } from "@/pages/availability";
 import { format } from "date-fns";
-
-import styles from "./AvailabilityForm.module.css";
 import axios from "axios";
 
 type AvailabilityFormProps = {

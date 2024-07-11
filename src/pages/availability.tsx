@@ -1,11 +1,10 @@
+import styles from "./availability.module.css";
 import AvailabilityForm from "@/components/AvailabilityForm";
 import Calendar from "@/components/Calendar";
 import { useEffect, useState } from "react";
 import { isSameDay } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/router";
-
-import styles from "./availability.module.css";
 
 export type DayAvailability = {
   id: number;

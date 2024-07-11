@@ -1,3 +1,4 @@
+import styles from "./Calendar.module.css";
 import React, { useState } from "react";
 import {
   format,
@@ -13,8 +14,6 @@ import {
 } from "date-fns";
 import classNames from "classnames";
 import { DayAvailability } from "@/pages/availability";
-
-import styles from "./Calendar.module.css";
 
 interface CalendarProps {
   availability: DayAvailability[];
