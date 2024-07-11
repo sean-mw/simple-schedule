@@ -6,6 +6,7 @@ import styles from "./AvailabilityForm.module.css";
 import axios from "axios";
 
 type AvailabilityFormProps = {
+  token: string;
   date: Date;
   dayAvailability?: DayAvailability;
 };
@@ -13,6 +14,7 @@ type AvailabilityFormProps = {
 const formatTime = (date: Date) => format(date, "HH:mm:ss");
 
 const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
+  token,
   date,
   dayAvailability,
 }) => {
@@ -53,6 +55,7 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
     };
 
     const availability = {
+      token,
       day: date,
       startTime: timeStringToDate(startTime),
       endTime: timeStringToDate(endTime),

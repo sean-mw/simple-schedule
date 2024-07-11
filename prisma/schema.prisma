@@ -9,24 +9,25 @@ generator client {
 }
 
 model User {
-    id             Int            @id @default(autoincrement())
-    firstName      String
-    lastName       String
-    email          String         @unique
-    passwordHash   String
-    isAdmin        Boolean
-    createdAt      DateTime       @default(now())
-    updatedAt      DateTime       @updatedAt
-    availabilities Availability[]
+    id           Int      @id @default(autoincrement())
+    email        String   @unique
+    passwordHash String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 }
 
 model Availability {
     id        Int      @id @default(autoincrement())
-    userId    Int
     day       DateTime
     startTime DateTime
     endTime   DateTime
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    token     String
 
-    @@index([userId])
+    @@index([token])
+}
+
+model AvailabilityRequest {
+    id    Int    @id @default(autoincrement())
+    token String @unique
+    email String
 }

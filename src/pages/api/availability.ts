@@ -8,9 +8,9 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { day, startTime, endTime } = req.body;
+    const { token, day, startTime, endTime } = req.body;
 
-    if (!day || !startTime || !endTime) {
+    if (!token || !day || !startTime || !endTime) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -19,25 +19,21 @@ export default async function handler(
         day: new Date(day),
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        user: {
-          connect: {
-            id: 1, // TODO: Replace with the authenticated user's ID
-          },
-        },
+        token,
       },
     });
 
     return res.status(201).json({ message: "Availability created" });
   } else if (req.method === "GET") {
-    const { userId } = req.query;
+    const { token } = req.query;
 
-    if (!userId) {
+    if (!token) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     const availability = await prisma.availability.findMany({
       where: {
-        userId: Number(userId),
+        token: String(token),
       },
     });
 
