@@ -1,14 +1,23 @@
-import styles from "./Admin.module.css";
+import styles from "./dashboard.module.css";
 import { useState } from "react";
 import axios from "axios";
 import EmployeeModal, { Employee } from "@/components/EmployeeModal";
+import { signIn, signOut, useSession } from "next-auth/react";
+import Spinner from "@/components/Spinner";
 
-export default function Admin() {
+export default function Dashboard() {
+  const { data: session, status } = useSession();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  if (status === "loading") {
+    return <Spinner />;
+  } else if (status === "unauthenticated") {
+    signIn();
+  }
 
   const handleAddEmployee = (employee: Employee) => {
     const email = employee.email;
@@ -48,6 +57,11 @@ export default function Admin() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.topRight}>
+        <button className={styles.button} onClick={() => signOut()}>
+          Sign out
+        </button>
+      </div>
       <h1 className={styles.title}>Send Availability Requests</h1>
       <button className={styles.button} onClick={() => setShowModal(true)}>
         Add Employee
