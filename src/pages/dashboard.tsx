@@ -1,5 +1,5 @@
 import styles from "./dashboard.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeModal, { Employee } from "@/components/EmployeeModal";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -12,6 +12,14 @@ export default function Dashboard() {
   const [selectAll, setSelectAll] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (session) {
+      axios.get("/api/employee").then((response) => {
+        setEmployees(response.data);
+      });
+    }
+  }, [session]);
 
   if (status === "loading") {
     return <Spinner />;
@@ -27,6 +35,18 @@ export default function Dashboard() {
       setTimeout(() => setErrorMessage(""), 3000);
     } else {
       setEmployees([...employees, employee]);
+      axios.post("/api/employee", employee);
+    }
+  };
+
+  const handleDeleteEmployee = async (email: string) => {
+    try {
+      await axios.delete(`/api/employee?email=${email}`);
+      setEmployees(employees.filter((e) => e.email !== email));
+      setSelectedEmployees(selectedEmployees.filter((e) => e.email !== email));
+    } catch (error) {
+      setErrorMessage("Failed to delete employee");
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
@@ -92,6 +112,12 @@ export default function Dashboard() {
                     </div>
                     <div className={styles.employeeEmail}>{employee.email}</div>
                   </div>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteEmployee(employee.email)}
+                  >
+                    Delete
+                  </button>
                 </div>
               ))}
             </div>
