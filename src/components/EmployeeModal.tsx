@@ -1,5 +1,6 @@
-import styles from "./EmployeeModal.module.css";
 import { useState } from "react";
+import Modal from "./Modal";
+import styles from "./EmployeeModal.module.css";
 
 export type Employee = {
   firstName: string;
@@ -31,9 +32,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   };
 
   return (
-    <div className={styles.modalBackdrop}>
-      <div className={styles.modal}>
-        <h2>Add Employee</h2>
+    <Modal title="Add Employee" onClose={onClose}>
+      <div className={styles.formGroup}>
         <input
           className={styles.input}
           value={firstName}
@@ -55,11 +55,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         <button className={styles.button} onClick={handleAdd}>
           Add Employee
         </button>
-        <button className={styles.button} onClick={onClose}>
-          Cancel
-        </button>
       </div>
-    </div>
+    </Modal>
   );
 };
 

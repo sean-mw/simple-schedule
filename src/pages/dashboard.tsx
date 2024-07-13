@@ -2,6 +2,7 @@ import styles from "./dashboard.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeModal, { Employee } from "@/components/EmployeeModal";
+import RequestAvailabilityModal from "@/components/RequestAvailabilityModal";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Spinner from "@/components/Spinner";
 
@@ -10,7 +11,9 @@ export default function Dashboard() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [showRequestAvailabilityModal, setShowRequestAvailabilityModal] =
+    useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -36,17 +39,6 @@ export default function Dashboard() {
     } else {
       setEmployees([...employees, employee]);
       axios.post("/api/employee", employee);
-    }
-  };
-
-  const handleDeleteEmployee = async (email: string) => {
-    try {
-      await axios.delete(`/api/employee?email=${email}`);
-      setEmployees(employees.filter((e) => e.email !== email));
-      setSelectedEmployees(selectedEmployees.filter((e) => e.email !== email));
-    } catch (error) {
-      setErrorMessage("Failed to delete employee");
-      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
@@ -77,60 +69,39 @@ export default function Dashboard() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.topRight}>
+      <div className={styles.buttonBar}>
+        <button
+          className={styles.button}
+          onClick={() => setShowEmployeeModal(true)}
+        >
+          Add Employee
+        </button>
+        <button
+          className={styles.button}
+          onClick={() => setShowRequestAvailabilityModal(true)}
+        >
+          Request Availability
+        </button>
         <button className={styles.button} onClick={() => signOut()}>
           Sign out
         </button>
       </div>
-      <h1 className={styles.title}>Send Availability Requests</h1>
-      <button className={styles.button} onClick={() => setShowModal(true)}>
-        Add Employee
-      </button>
       {errorMessage && <div className={styles.error}>{errorMessage}</div>}
-      {employees.length > 0 && (
-        <>
-          <div className={styles.formGroup}>
-            <div className={styles.selectAllContainer}>
-              <input
-                type="checkbox"
-                checked={selectAll}
-                onChange={handleSelectAll}
-              />
-              <label>Select All</label>
-            </div>
-            <div className={styles.employeeList}>
-              {employees.map((employee) => (
-                <div key={employee.email} className={styles.employeeItem}>
-                  <input
-                    type="checkbox"
-                    checked={selectedEmployees.includes(employee)}
-                    onChange={() => handleEmployeeSelection(employee)}
-                  />
-                  <div className={styles.employeeInfo}>
-                    <div className={styles.employeeName}>
-                      {employee.firstName} {employee.lastName}
-                    </div>
-                    <div className={styles.employeeEmail}>{employee.email}</div>
-                  </div>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteEmployee(employee.email)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-      <button className={styles.button} onClick={handleSendEmails}>
-        Send Emails
-      </button>
-      {showModal && (
+      {showEmployeeModal && (
         <EmployeeModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowEmployeeModal(false)}
           onAddEmployee={handleAddEmployee}
+        />
+      )}
+      {showRequestAvailabilityModal && (
+        <RequestAvailabilityModal
+          employees={employees}
+          selectedEmployees={selectedEmployees}
+          selectAll={selectAll}
+          onClose={() => setShowRequestAvailabilityModal(false)}
+          onSendEmails={handleSendEmails}
+          onSelectAll={handleSelectAll}
+          onEmployeeSelection={handleEmployeeSelection}
         />
       )}
     </div>
