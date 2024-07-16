@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeModal, { Employee } from "@/components/EmployeeModal";
 import RequestAvailabilityModal from "@/components/RequestAvailabilityModal";
+import EmployeeAvailability from "@/components/EmployeeAvailability";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Spinner from "@/components/Spinner";
 
@@ -82,7 +83,7 @@ export default function Dashboard() {
         >
           Request Availability
         </button>
-        <button className={styles.button} onClick={() => signOut()}>
+        <button className={styles.signoutButton} onClick={() => signOut()}>
           Sign out
         </button>
       </div>
@@ -104,6 +105,7 @@ export default function Dashboard() {
           onEmployeeSelection={handleEmployeeSelection}
         />
       )}
+      <EmployeeAvailability />
     </div>
   );
 }
