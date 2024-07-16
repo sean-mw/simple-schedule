@@ -8,13 +8,27 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "POST") {
-    const { emails } = req.body;
+  switch (req.method) {
+    case "POST":
+      return createAvailabilityRequests(req, res);
+    case "GET":
+      return getAvailabilityRequests(req, res);
+    default:
+      return res.status(405).json({ error: "Method not allowed" });
+  }
+}
 
-    if (!emails) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
+async function createAvailabilityRequests(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { emails } = req.body;
 
+  if (!emails) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
     for (const email of emails) {
       const token = uuidv4();
 
@@ -44,24 +58,36 @@ export default async function handler(
       //   });
     }
 
-    res
+    return res
       .status(200)
       .json({ message: "Availability request emails sent successfully" });
-  } else if (req.method === "GET") {
-    const { token } = req.query;
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Error creating availability requests" });
+  }
+}
 
-    if (!token) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
+async function getAvailabilityRequests(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { token } = req.query;
 
-    const availabilityRequest = await prisma.availabilityRequest.findMany({
+  if (!token) {
+    return res.status(400).json({ error: "Missing token" });
+  }
+
+  try {
+    const availabilityRequests = await prisma.availabilityRequest.findMany({
       where: {
-        token: String(token),
+        token: token as string,
       },
     });
-
-    res.status(200).json(availabilityRequest);
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
+    return res.status(200).json(availabilityRequests);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Error fetching availability requests" });
   }
 }

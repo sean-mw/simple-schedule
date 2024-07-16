@@ -18,7 +18,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (session) {
-      axios.get("/api/employee").then((response) => {
+      axios.get("/api/employees").then((response) => {
         setEmployees(response.data);
       });
     }
@@ -38,13 +38,13 @@ export default function Dashboard() {
       setTimeout(() => setErrorMessage(""), 3000);
     } else {
       setEmployees([...employees, employee]);
-      axios.post("/api/employee", employee);
+      axios.post("/api/employees", employee);
     }
   };
 
   const handleSendEmails = async () => {
     const emails = selectedEmployees.map((e) => e.email);
-    await axios.post("/api/availability-request", { emails });
+    await axios.post("/api/availability-requests", { emails });
   };
 
   const handleSelectAll = () => {

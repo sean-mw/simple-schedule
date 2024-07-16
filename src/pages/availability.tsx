@@ -29,7 +29,7 @@ export default function Availability() {
 
     const fetchAvailability = async () => {
       try {
-        const response = await axios.get("/api/availability", {
+        const response = await axios.get("/api/availabilities", {
           params: { token },
         });
         setAvailability(response.data);

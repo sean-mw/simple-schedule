@@ -62,7 +62,7 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
     };
 
     try {
-      await axios.post("/api/availability", availability);
+      await axios.post("/api/availabilities", availability);
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
