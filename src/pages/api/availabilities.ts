@@ -19,6 +19,8 @@ export default async function handler(
       return createAvailability(req, res);
     case "GET":
       return getAvailabilities(req, res, session.user.id);
+    case "DELETE":
+      return deleteAvailability(req, res);
     default:
       return res.status(405).json({ error: "Method not allowed" });
   }
@@ -52,31 +54,69 @@ async function getAvailabilities(
   userId: string
 ) {
   try {
-    const employees = await prisma.employee.findMany({
-      where: { userId },
-      select: { email: true },
-    });
+    const { email } = req.query;
 
-    const employeeEmails = employees.map((e) => e.email);
+    if (email) {
+      // get availabilities for a specific employee
+      const availabilityRequests = await prisma.availabilityRequest.findMany({
+        where: { email: email as string },
+        select: { token: true },
+      });
 
-    const availabilityRequests = await prisma.availabilityRequest.findMany({
-      where: { email: { in: employeeEmails } },
-      select: { token: true, email: true },
-    });
+      const tokens = availabilityRequests.map((ar) => ar.token);
 
-    const tokens = availabilityRequests.map((ar) => ar.token);
+      const availabilities = await prisma.availability.findMany({
+        where: { token: { in: tokens } },
+      });
 
-    const availabilities = await prisma.availability.findMany({
-      where: { token: { in: tokens } },
-    });
+      return res.status(200).json([{ email, availabilities }]);
+    } else {
+      // get availabilities for all employees
 
-    const response = availabilityRequests.map((ar) => ({
-      email: ar.email,
-      availabilities: availabilities.filter((a) => a.token === ar.token),
-    }));
+      const employees = await prisma.employee.findMany({
+        where: { userId },
+        select: { email: true },
+      });
 
-    return res.status(200).json(response);
+      const employeeEmails = employees.map((e) => e.email);
+
+      const availabilityRequests = await prisma.availabilityRequest.findMany({
+        where: { email: { in: employeeEmails } },
+        select: { token: true, email: true },
+      });
+
+      const tokens = availabilityRequests.map((ar) => ar.token);
+
+      const availabilities = await prisma.availability.findMany({
+        where: { token: { in: tokens } },
+      });
+
+      const response = availabilityRequests.map((ar) => ({
+        email: ar.email,
+        availabilities: availabilities.filter((a) => a.token === ar.token),
+      }));
+
+      return res.status(200).json(response);
+    }
   } catch (error) {
     return res.status(500).json({ error: "Error fetching availabilities" });
   }
 }
+
+const deleteAvailability = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  try {
+    await prisma.availability.delete({ where: { id: parseInt(id as string) } });
+    return res.status(200).json({ message: "Availability deleted" });
+  } catch (error) {
+    return res.status(500).json({ error: "Error deleting availability" });
+  }
+};

@@ -3,6 +3,8 @@ import { format, addDays, isSameDay } from "date-fns";
 import styles from "./AvailabilityTable.module.css";
 import { DayAvailability } from "@/pages/availability";
 import { Employee } from "./EmployeeModal";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 type EmployeeAvailabilityData = {
   email: string;
@@ -14,18 +16,35 @@ type EmployeeWithAvailability = Employee & EmployeeAvailabilityData;
 type AvailabilityTableProps = {
   startOfCurrentWeek: Date;
   employees: EmployeeWithAvailability[];
+  onDayClick?: (day: Date) => void;
 };
 
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfCurrentWeek,
   employees,
+  onDayClick,
 }) => {
+  const router = useRouter();
+
   const renderAvailabilityBlock = (availability: DayAvailability) => {
     const startHour = format(new Date(availability.startTime), "h:mm a");
     const endHour = format(new Date(availability.endTime), "h:mm a");
     return (
       <div key={availability.id} className={styles.availabilityBlock}>
-        {startHour} - {endHour}
+        <span>
+          {startHour} - {endHour}
+        </span>
+        {onDayClick && (
+          <button
+            className={styles.deleteButton}
+            onClick={async () => {
+              await axios.delete(`/api/availabilities`, { data: availability });
+              router.reload(); // TODO: refactor availability page to avoid this reload
+            }}
+          >
+            ×
+          </button>
+        )}
       </div>
     );
   };
@@ -58,6 +77,14 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                   <div className={styles.multipleAvailabilities}>
                     {availability.map((a) => renderAvailabilityBlock(a))}
                   </div>
+                  {onDayClick && (
+                    <button
+                      className={styles.addButton}
+                      onClick={() => onDayClick(date)}
+                    >
+                      +
+                    </button>
+                  )}
                 </td>
               );
             })}

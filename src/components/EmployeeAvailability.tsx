@@ -7,12 +7,12 @@ import { Employee } from "./EmployeeModal";
 import WeeklyCalendar from "./WeeklyCalendar";
 import AvailabilityTable from "./AvailabilityTable";
 
-type EmployeeAvailabilityData = {
+export type EmployeeAvailabilityData = {
   email: string;
   availabilities: DayAvailability[];
 };
 
-type EmployeeWithAvailability = Employee & EmployeeAvailabilityData;
+export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData;
 
 const EmployeeAvailability: React.FC = () => {
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());

@@ -1,6 +1,7 @@
 .table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .table th,
@@ -8,6 +9,7 @@
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
+    width: 14.28%;
 }
 
 .table th {
@@ -39,9 +41,8 @@
     margin-bottom: 5px;
     width: 100%;
     box-sizing: border-box;
-    text-align: center;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -53,4 +54,44 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+}
+
+.addButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 5px;
+}
+
+.addButton:hover {
+    background-color: #218838;
+}
+
+.addButton:focus {
+    outline: none;
+}
+
+.deleteButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #dc3545;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.deleteButton:hover {
+    color: #c82333;
 }

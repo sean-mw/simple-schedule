@@ -3,11 +3,13 @@ import React, { useEffect, useState } from "react";
 import { DayAvailability } from "@/pages/availability";
 import { format } from "date-fns";
 import axios from "axios";
+import { on } from "events";
 
 type AvailabilityFormProps = {
   token: string;
   date: Date;
   dayAvailability?: DayAvailability;
+  onSuccess?: () => void;
 };
 
 const formatTime = (date: Date) => format(date, "HH:mm:ss");
@@ -16,6 +18,7 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
   token,
   date,
   dayAvailability,
+  onSuccess,
 }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -66,6 +69,7 @@ const AvailabilityForm: React.FC<AvailabilityFormProps> = ({
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
+        onSuccess && onSuccess();
       }, 2000);
     } catch (error) {
       setErrorMessage("Failed to submit availability. Please try again.");

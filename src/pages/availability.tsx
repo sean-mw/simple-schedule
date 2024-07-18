@@ -2,9 +2,18 @@ import styles from "./availability.module.css";
 import AvailabilityForm from "@/components/AvailabilityForm";
 import Calendar from "@/components/Calendar";
 import { useEffect, useState } from "react";
-import { isSameDay } from "date-fns";
+import { addWeeks, isSameDay, set, startOfWeek, subWeeks } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/router";
+import WeeklyCalendar from "@/components/WeeklyCalendar";
+import AvailabilityTable from "@/components/AvailabilityTable";
+import { Employee } from "@/components/EmployeeModal";
+import {
+  EmployeeAvailabilityData,
+  EmployeeWithAvailability,
+} from "@/components/EmployeeAvailability";
+import Modal from "@/components/Modal";
+import AvailabilityModal from "@/components/AvailabilityModal";
 
 export type DayAvailability = {
   id: number;
@@ -21,45 +30,77 @@ type QueryParams = {
 export default function Availability() {
   const router = useRouter();
   const { token } = router.query as QueryParams;
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [availability, setAvailability] = useState<DayAvailability[]>([]);
+  const [employees, setEmployees] = useState<EmployeeWithAvailability[]>([]);
+  const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
+  const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+  const [clickedDay, setClickedDay] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!token) return;
 
-    const fetchAvailability = async () => {
+    const fetchEmployeeAvailability = async () => {
       try {
-        const response = await axios.get("/api/availabilities", {
+        const employeesResponse = await axios.get("/api/employees", {
           params: { token },
         });
-        setAvailability(response.data);
+        const email = employeesResponse.data[0].email;
+        const availabilitiesResponse = await axios.get("/api/availabilities", {
+          params: { email },
+        });
+        const employeesData = employeesResponse.data.map((employee: any) => ({
+          ...employee,
+          availabilities: availabilitiesResponse.data
+            .filter(
+              (ar: EmployeeAvailabilityData) => ar.email === employee.email
+            )
+            .flatMap((ar: EmployeeAvailabilityData) => ar.availabilities),
+        }));
+        setEmployees(employeesData);
       } catch (error) {
-        console.error("Error fetching availability:", error);
+        console.error("Error fetching employee:", error);
       }
     };
 
-    fetchAvailability();
-  }, [selectedDate, token]);
+    fetchEmployeeAvailability();
+  }, [token]);
 
   if (!token) {
     // TODO: Handle this case better
     return <div>Invalid availability request link.</div>;
   }
 
+  const nextWeek = () => {
+    setCurrentWeek(addWeeks(currentWeek, 1));
+  };
+
+  const prevWeek = () => {
+    setCurrentWeek(subWeeks(currentWeek, 1));
+  };
+
+  const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
+
   return (
     <div className={styles.container}>
-      <Calendar
-        availability={availability}
-        selectedDate={selectedDate}
-        onDateChange={(date: Date) => setSelectedDate(date)}
-      ></Calendar>
-      <AvailabilityForm
-        token={token}
-        date={selectedDate}
-        dayAvailability={availability.find((a) => {
-          return isSameDay(a.day, selectedDate);
-        })}
+      <WeeklyCalendar
+        currentWeek={currentWeek}
+        onNextWeek={nextWeek}
+        onPrevWeek={prevWeek}
       />
+      <AvailabilityTable
+        startOfCurrentWeek={startOfCurrentWeek}
+        employees={employees}
+        onDayClick={async (day: Date) => {
+          setClickedDay(day);
+          setShowAvailabilityModal(true);
+        }}
+      />
+      {showAvailabilityModal && clickedDay && (
+        <AvailabilityModal
+          token={token}
+          date={clickedDay}
+          onClose={() => setShowAvailabilityModal(false)}
+        />
+      )}
     </div>
   );
 }

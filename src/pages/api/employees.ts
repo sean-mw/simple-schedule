@@ -53,16 +53,24 @@ async function createEmployee(
 }
 
 async function getEmployees(
-  _req: NextApiRequest,
+  req: NextApiRequest,
   res: NextApiResponse,
   userId: string
 ) {
-  try {
-    const employees = await prisma.employee.findMany({
-      where: {
-        userId,
-      },
+  let email: string | undefined;
+
+  const { token } = req.query;
+
+  if (token) {
+    const availabilityRequest = await prisma.availabilityRequest.findUnique({
+      where: { token: token as string },
     });
+    email = availabilityRequest?.email;
+  }
+
+  try {
+    const where = email ? { userId, email } : { userId };
+    const employees = await prisma.employee.findMany({ where });
     return res.status(200).json(employees);
   } catch (error) {
     return res.status(500).json({ error: "Error fetching employees" });
