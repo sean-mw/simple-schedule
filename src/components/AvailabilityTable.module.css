@@ -1,0 +1,56 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.employeeName {
+    text-align: left;
+    padding-left: 10px;
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+.availabilityCell {
+    position: relative;
+    height: 120px;
+    vertical-align: top;
+    padding: 5px;
+}
+
+.availabilityBlock {
+    position: relative;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 12px;
+    margin-bottom: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.availabilityBlock:not(:last-child) {
+    margin-bottom: 5px;
+}
+
+.multipleAvailabilities {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
