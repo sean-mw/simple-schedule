@@ -10,16 +10,19 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const session = await getServerSession(req, res, authOptions);
-  if (!session?.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
 
   switch (req.method) {
     case "POST":
+      if (!session?.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
       return createEmployee(req, res, session.user.id);
     case "GET":
-      return getEmployees(req, res, session.user.id);
+      return getEmployees(req, res);
     case "DELETE":
+      if (!session?.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
       return deleteEmployee(req, res, session.user.id);
     default:
       return res.status(405).json({ error: "Method not allowed" });
@@ -52,11 +55,7 @@ async function createEmployee(
   }
 }
 
-async function getEmployees(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  userId: string
-) {
+async function getEmployees(req: NextApiRequest, res: NextApiResponse) {
   let email: string | undefined;
 
   const { token } = req.query;
@@ -68,8 +67,18 @@ async function getEmployees(
     email = availabilityRequest?.email;
   }
 
+  const where: { userId?: string; email?: string } = {};
+  if (!email) {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    where.userId = session.user.id;
+  } else {
+    where.email = email;
+  }
+
   try {
-    const where = email ? { userId, email } : { userId };
     const employees = await prisma.employee.findMany({ where });
     return res.status(200).json(employees);
   } catch (error) {

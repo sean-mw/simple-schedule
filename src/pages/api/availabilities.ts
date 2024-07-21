@@ -9,16 +9,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
   switch (req.method) {
     case "POST":
       return createAvailability(req, res);
     case "GET":
-      return getAvailabilities(req, res, session.user.id);
+      return getAvailabilities(req, res);
     case "DELETE":
       return deleteAvailability(req, res);
     default:
@@ -48,11 +43,7 @@ async function createAvailability(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function getAvailabilities(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  userId: string
-) {
+async function getAvailabilities(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { email } = req.query;
 
@@ -73,8 +64,13 @@ async function getAvailabilities(
     } else {
       // get availabilities for all employees
 
+      const session = await getServerSession(req, res, authOptions);
+      if (!session?.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
       const employees = await prisma.employee.findMany({
-        where: { userId },
+        where: { userId: session.user.id },
         select: { email: true },
       });
 
@@ -107,14 +103,19 @@ const deleteAvailability = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const { id } = req.body;
+  const { id, token } = req.body;
 
-  if (!id) {
+  if (!id || !token) {
     return res.status(400).json({ error: "Missing id" });
   }
 
   try {
-    await prisma.availability.delete({ where: { id: parseInt(id as string) } });
+    await prisma.availability.delete({
+      where: {
+        id: parseInt(id as string),
+        token: token as string,
+      },
+    });
     return res.status(200).json({ message: "Availability deleted" });
   } catch (error) {
     return res.status(500).json({ error: "Error deleting availability" });
