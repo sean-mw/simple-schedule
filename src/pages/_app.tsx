@@ -1,9 +1,8 @@
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-
-const theme = createTheme();
+import theme from "@/styles/theme";
 
 export default function App({
   Component,

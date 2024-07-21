@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { startOfWeek, addWeeks, subWeeks } from "date-fns";
-import styles from "./EmployeeAvailability.module.css";
+import {
+  Typography,
+  CircularProgress,
+  Alert,
+  Paper,
+  Container,
+} from "@mui/material";
 import { DayAvailability } from "@/pages/availability";
 import { Employee } from "./EmployeeModal";
 import WeeklyCalendar from "./WeeklyCalendar";
@@ -58,14 +64,18 @@ const EmployeeAvailability: React.FC = () => {
   const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Employee Availability</h2>
+    <>
+      <Typography variant="h4" align="center" gutterBottom>
+        Employee Availability
+      </Typography>
       {loading ? (
-        <></>
+        <CircularProgress sx={{ display: "block", margin: "16px auto" }} />
       ) : error ? (
-        <div className={styles.error}>{error}</div>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          {error}
+        </Alert>
       ) : (
-        <div>
+        <>
           <WeeklyCalendar
             currentWeek={currentWeek}
             onNextWeek={nextWeek}
@@ -75,9 +85,9 @@ const EmployeeAvailability: React.FC = () => {
             startOfCurrentWeek={startOfCurrentWeek}
             employees={employees}
           />
-        </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
 

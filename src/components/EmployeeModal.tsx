@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { TextField, Button, Box, DialogActions } from "@mui/material";
 import Modal from "./Modal";
-import styles from "./EmployeeModal.module.css";
 
 export type Employee = {
   firstName: string;
@@ -33,29 +33,40 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
   return (
     <Modal title="Add Employee" onClose={onClose}>
-      <div className={styles.formGroup}>
-        <input
-          className={styles.input}
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <TextField
+          fullWidth
+          margin="normal"
+          label="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First Name"
         />
-        <input
-          className={styles.input}
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last Name"
         />
-        <input
-          className={styles.input}
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Email"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
         />
-        <button className={styles.button} onClick={handleAdd}>
+      </Box>
+      <DialogActions>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAdd}
+          fullWidth
+        >
           Add Employee
-        </button>
-      </div>
+        </Button>
+      </DialogActions>
     </Modal>
   );
 };

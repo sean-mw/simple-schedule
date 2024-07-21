@@ -1,11 +1,12 @@
-import styles from "./dashboard.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeModal, { Employee } from "@/components/EmployeeModal";
 import RequestAvailabilityModal from "@/components/RequestAvailabilityModal";
 import EmployeeAvailability from "@/components/EmployeeAvailability";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Spinner from "@/components/Spinner";
+import { Box, Alert } from "@mui/material";
+import Navbar from "@/components/Navbar";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -29,6 +30,7 @@ export default function Dashboard() {
     return <Spinner />;
   } else if (status === "unauthenticated") {
     signIn();
+    return <Spinner />;
   }
 
   const handleAddEmployee = (employee: Employee) => {
@@ -69,43 +71,36 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.buttonBar}>
-        <button
-          className={styles.button}
-          onClick={() => setShowEmployeeModal(true)}
-        >
-          Add Employee
-        </button>
-        <button
-          className={styles.button}
-          onClick={() => setShowRequestAvailabilityModal(true)}
-        >
-          Request Availability
-        </button>
-        <button className={styles.signoutButton} onClick={() => signOut()}>
-          Sign out
-        </button>
-      </div>
-      {errorMessage && <div className={styles.error}>{errorMessage}</div>}
-      {showEmployeeModal && (
-        <EmployeeModal
-          onClose={() => setShowEmployeeModal(false)}
-          onAddEmployee={handleAddEmployee}
-        />
-      )}
-      {showRequestAvailabilityModal && (
-        <RequestAvailabilityModal
-          employees={employees}
-          selectedEmployees={selectedEmployees}
-          selectAll={selectAll}
-          onClose={() => setShowRequestAvailabilityModal(false)}
-          onSendEmails={handleSendEmails}
-          onSelectAll={handleSelectAll}
-          onEmployeeSelection={handleEmployeeSelection}
-        />
-      )}
-      <EmployeeAvailability />
-    </div>
+    <Box>
+      <Navbar
+        onAddEmployee={() => setShowEmployeeModal(true)}
+        onRequestAvailability={() => setShowRequestAvailabilityModal(true)}
+      />
+      <Box sx={{ p: 4 }}>
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 4 }}>
+            {errorMessage}
+          </Alert>
+        )}
+        {showEmployeeModal && (
+          <EmployeeModal
+            onClose={() => setShowEmployeeModal(false)}
+            onAddEmployee={handleAddEmployee}
+          />
+        )}
+        {showRequestAvailabilityModal && (
+          <RequestAvailabilityModal
+            employees={employees}
+            selectedEmployees={selectedEmployees}
+            selectAll={selectAll}
+            onClose={() => setShowRequestAvailabilityModal(false)}
+            onSendEmails={handleSendEmails}
+            onSelectAll={handleSelectAll}
+            onEmployeeSelection={handleEmployeeSelection}
+          />
+        )}
+        <EmployeeAvailability />
+      </Box>
+    </Box>
   );
 }

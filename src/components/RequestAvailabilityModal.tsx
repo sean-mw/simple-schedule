@@ -1,5 +1,15 @@
+import {
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Button,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+} from "@mui/material";
 import Modal from "./Modal";
-import styles from "./RequestAvailabilityModal.module.css";
 import { Employee } from "./EmployeeModal";
 
 interface RequestAvailabilityModalProps {
@@ -24,39 +34,40 @@ export default function RequestAvailabilityModal({
   return (
     <Modal title="Send Availability Requests" onClose={onClose}>
       {employees.length > 0 && (
-        <>
-          <div className={styles.formGroup}>
-            <div className={styles.selectAllContainer}>
-              <input
-                type="checkbox"
-                checked={selectAll}
-                onChange={onSelectAll}
-              />
-              <label>Select All</label>
-            </div>
-            <div className={styles.employeeList}>
-              {employees.map((employee) => (
-                <div key={employee.email} className={styles.employeeItem}>
-                  <input
-                    type="checkbox"
+        <Box mb={2}>
+          <FormGroup>
+            <FormControlLabel
+              control={<Checkbox checked={selectAll} onChange={onSelectAll} />}
+              label="Select All"
+            />
+          </FormGroup>
+          <List>
+            {employees.map((employee) => (
+              <ListItem key={employee.email} divider>
+                <ListItemText
+                  primary={`${employee.firstName} ${employee.lastName}`}
+                  secondary={employee.email}
+                />
+                <ListItemSecondaryAction>
+                  <Checkbox
+                    edge="end"
                     checked={selectedEmployees.includes(employee)}
                     onChange={() => onEmployeeSelection(employee)}
                   />
-                  <div className={styles.employeeInfo}>
-                    <div className={styles.employeeName}>
-                      {employee.firstName} {employee.lastName}
-                    </div>
-                    <div className={styles.employeeEmail}>{employee.email}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       )}
-      <button className={styles.button} onClick={onSendEmails}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={onSendEmails}
+        fullWidth
+      >
         Send Requests
-      </button>
+      </Button>
     </Modal>
   );
 }

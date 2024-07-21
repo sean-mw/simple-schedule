@@ -1,10 +1,25 @@
 import React from "react";
 import { format, addDays, isSameDay } from "date-fns";
-import styles from "./AvailabilityTable.module.css";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
+  IconButton,
+  Typography,
+  Fab,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { DayAvailability } from "@/pages/availability";
 import { Employee } from "./EmployeeModal";
 import axios from "axios";
 import { useRouter } from "next/router";
+import { useTheme } from "@mui/material/styles";
 
 type EmployeeAvailabilityData = {
   email: string;
@@ -25,73 +40,101 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   onDayClick,
 }) => {
   const router = useRouter();
+  const theme = useTheme();
 
   const renderAvailabilityBlock = (availability: DayAvailability) => {
-    const startHour = format(new Date(availability.startTime), "h:mm a");
-    const endHour = format(new Date(availability.endTime), "h:mm a");
+    const startHour = format(new Date(availability.startTime), "h a");
+    const endHour = format(new Date(availability.endTime), "h a");
     return (
-      <div key={availability.id} className={styles.availabilityBlock}>
+      <Box
+        key={availability.id}
+        sx={{
+          backgroundColor: theme.palette.success.light,
+          borderRadius: "4px",
+          padding: "4px 6px",
+          fontSize: "12px",
+          marginBottom: "5px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <span>
           {startHour} - {endHour}
         </span>
         {onDayClick && (
-          <button
-            className={styles.deleteButton}
+          <IconButton
+            size="small"
+            color="error"
             onClick={async () => {
               await axios.delete(`/api/availabilities`, { data: availability });
               router.reload(); // TODO: refactor availability page to avoid this reload
             }}
           >
-            ×
-          </button>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
         )}
-      </div>
+      </Box>
     );
   };
 
   return (
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th>Employee</th>
-          {Array.from({ length: 7 }).map((_, index) => (
-            <th key={index}>
-              {format(addDays(startOfCurrentWeek, index), "EEE, MMM d")}
-            </th>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Employee</TableCell>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <TableCell key={index}>
+                {format(addDays(startOfCurrentWeek, index), "EEE, MMM d")}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {employees.map((employee) => (
+            <TableRow key={employee.email}>
+              <TableCell>
+                <Typography fontWeight="bold">
+                  {employee.firstName} {employee.lastName}
+                </Typography>
+              </TableCell>
+              {Array.from({ length: 7 }).map((_, index) => {
+                const date = addDays(startOfCurrentWeek, index);
+                const availability = employee.availabilities.filter((a) =>
+                  isSameDay(new Date(a.day), date)
+                );
+                return (
+                  <TableCell key={index} sx={{ position: "relative" }}>
+                    <Box display="flex" flexDirection="column" gap={1}>
+                      {availability.map((a) => renderAvailabilityBlock(a))}
+                    </Box>
+                    {onDayClick && (
+                      <>
+                        <Box sx={{ height: "40px" }}></Box>
+                        <Fab
+                          color="primary"
+                          size="small"
+                          onClick={() => onDayClick(date)}
+                          sx={{
+                            position: "absolute",
+                            bottom: "8px",
+                            right: "8px",
+                            zIndex: 1,
+                          }}
+                        >
+                          <AddIcon />
+                        </Fab>
+                      </>
+                    )}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
           ))}
-        </tr>
-      </thead>
-      <tbody>
-        {employees.map((employee) => (
-          <tr key={employee.email}>
-            <td className={styles.employeeName}>
-              {employee.firstName} {employee.lastName}
-            </td>
-            {Array.from({ length: 7 }).map((_, index) => {
-              const date = addDays(startOfCurrentWeek, index);
-              const availability = employee.availabilities.filter((a) =>
-                isSameDay(new Date(a.day), date)
-              );
-              return (
-                <td key={index} className={styles.availabilityCell}>
-                  <div className={styles.multipleAvailabilities}>
-                    {availability.map((a) => renderAvailabilityBlock(a))}
-                  </div>
-                  {onDayClick && (
-                    <button
-                      className={styles.addButton}
-                      onClick={() => onDayClick(date)}
-                    >
-                      +
-                    </button>
-                  )}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

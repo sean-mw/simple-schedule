@@ -1,6 +1,8 @@
 import React from "react";
 import { format, startOfWeek, addDays } from "date-fns";
-import styles from "./WeeklyCalendar.module.css";
+import { Box, IconButton, Typography } from "@mui/material";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 type WeeklyCalendarProps = {
   currentWeek: Date;
@@ -16,18 +18,18 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
   const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
 
   return (
-    <div className={styles.calendarHeader}>
-      <button onClick={onPrevWeek} className={styles.button}>
-        &lt;
-      </button>
-      <h2 className={styles.dateRange}>
+    <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+      <IconButton onClick={onPrevWeek} color="primary">
+        <ArrowBackIosIcon />
+      </IconButton>
+      <Typography variant="h6" color="textSecondary" mx={2}>
         {format(startOfCurrentWeek, "MMMM d, yyyy")} -{" "}
         {format(addDays(startOfCurrentWeek, 6), "MMMM d, yyyy")}
-      </h2>
-      <button onClick={onNextWeek} className={styles.button}>
-        &gt;
-      </button>
-    </div>
+      </Typography>
+      <IconButton onClick={onNextWeek} color="primary">
+        <ArrowForwardIosIcon />
+      </IconButton>
+    </Box>
   );
 };
 

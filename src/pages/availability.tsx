@@ -1,8 +1,5 @@
-import styles from "./availability.module.css";
-import AvailabilityForm from "@/components/AvailabilityForm";
-import Calendar from "@/components/Calendar";
 import { useEffect, useState } from "react";
-import { addWeeks, isSameDay, set, startOfWeek, subWeeks } from "date-fns";
+import { addWeeks, startOfWeek, subWeeks } from "date-fns";
 import axios from "axios";
 import { useRouter } from "next/router";
 import WeeklyCalendar from "@/components/WeeklyCalendar";
@@ -12,8 +9,8 @@ import {
   EmployeeAvailabilityData,
   EmployeeWithAvailability,
 } from "@/components/EmployeeAvailability";
-import Modal from "@/components/Modal";
 import AvailabilityModal from "@/components/AvailabilityModal";
+import { Box, Typography } from "@mui/material";
 
 export type DayAvailability = {
   id: number;
@@ -66,7 +63,11 @@ export default function Availability() {
 
   if (!token) {
     // TODO: Handle this case better
-    return <div>Invalid availability request link.</div>;
+    return (
+      <Typography variant="h6" color="error">
+        Invalid availability request link.
+      </Typography>
+    );
   }
 
   const nextWeek = () => {
@@ -80,7 +81,10 @@ export default function Availability() {
   const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
 
   return (
-    <div className={styles.container}>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4" align="center" gutterBottom>
+        Select Your Availability
+      </Typography>
       <WeeklyCalendar
         currentWeek={currentWeek}
         onNextWeek={nextWeek}
@@ -101,6 +105,6 @@ export default function Availability() {
           onClose={() => setShowAvailabilityModal(false)}
         />
       )}
-    </div>
+    </Box>
   );
 }

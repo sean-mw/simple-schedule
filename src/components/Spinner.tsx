@@ -1,10 +1,20 @@
-import styles from "./Spinner.module.css";
+import { Box, CircularProgress } from "@mui/material";
 
 const Spinner: React.FC = () => {
   return (
-    <div className={styles.spinnerContainer}>
-      <div className={styles.spinner}></div>
-    </div>
+    <Box
+      sx={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <CircularProgress />
+    </Box>
   );
 };
 

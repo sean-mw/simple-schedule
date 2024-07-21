@@ -1,4 +1,4 @@
-import { signIn, getProviders, ClientSafeProvider } from "next-auth/react";
+import { signIn, ClientSafeProvider } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import { useState } from "react";
 import {
