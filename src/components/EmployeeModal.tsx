@@ -36,21 +36,21 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       <Box display="flex" flexDirection="column" alignItems="center">
         <TextField
           fullWidth
-          margin="normal"
+          margin="dense"
           label="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
         />
         <TextField
           fullWidth
-          margin="normal"
+          margin="dense"
           label="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
         />
         <TextField
           fullWidth
-          margin="normal"
+          margin="dense"
           label="Email"
           type="email"
           value={email}
@@ -63,6 +63,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           color="primary"
           onClick={handleAdd}
           fullWidth
+          sx={{ mt: 1 }}
         >
           Add Employee
         </Button>
