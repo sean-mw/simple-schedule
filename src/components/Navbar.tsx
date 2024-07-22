@@ -1,5 +1,5 @@
-import { signOut } from "next-auth/react";
-import { AppBar, Toolbar, Button, Stack, Box } from "@mui/material";
+import { signOut, useSession } from "next-auth/react";
+import { AppBar, Toolbar, Button, Stack, Box, Typography } from "@mui/material";
 import Logo from "./Logo";
 
 type NavbarProps = {
@@ -13,6 +13,8 @@ const Navbar: React.FC<NavbarProps> = ({
   onRequestAvailability,
   hideButtons,
 }) => {
+  const session = useSession();
+
   return (
     <AppBar position="static" sx={{ bgcolor: "white" }}>
       <Toolbar>
@@ -37,6 +39,9 @@ const Navbar: React.FC<NavbarProps> = ({
                 </Button>
               </Stack>
             </Box>
+            <Typography color="textSecondary" mx={2}>
+              {session.data?.user?.email}
+            </Typography>
             <Button variant="contained" color="error" onClick={() => signOut()}>
               Sign out
             </Button>
