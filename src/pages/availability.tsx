@@ -11,6 +11,7 @@ import {
 } from "@/components/EmployeeAvailability";
 import AvailabilityModal from "@/components/AvailabilityModal";
 import { Box, Typography } from "@mui/material";
+import Navbar from "@/components/Navbar";
 
 export type DayAvailability = {
   id: number;
@@ -81,30 +82,33 @@ export default function Availability() {
   const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Select Your Availability
-      </Typography>
-      <WeeklyCalendar
-        currentWeek={currentWeek}
-        onNextWeek={nextWeek}
-        onPrevWeek={prevWeek}
-      />
-      <AvailabilityTable
-        startOfCurrentWeek={startOfCurrentWeek}
-        employees={employees}
-        onDayClick={async (day: Date) => {
-          setClickedDay(day);
-          setShowAvailabilityModal(true);
-        }}
-      />
-      {showAvailabilityModal && clickedDay && (
-        <AvailabilityModal
-          token={token}
-          date={clickedDay}
-          onClose={() => setShowAvailabilityModal(false)}
+    <Box>
+      <Navbar hideButtons={true} />
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Select Your Availability
+        </Typography>
+        <WeeklyCalendar
+          currentWeek={currentWeek}
+          onNextWeek={nextWeek}
+          onPrevWeek={prevWeek}
         />
-      )}
+        <AvailabilityTable
+          startOfCurrentWeek={startOfCurrentWeek}
+          employees={employees}
+          onDayClick={async (day: Date) => {
+            setClickedDay(day);
+            setShowAvailabilityModal(true);
+          }}
+        />
+        {showAvailabilityModal && clickedDay && (
+          <AvailabilityModal
+            token={token}
+            date={clickedDay}
+            onClose={() => setShowAvailabilityModal(false)}
+          />
+        )}
+      </Box>
     </Box>
   );
 }
