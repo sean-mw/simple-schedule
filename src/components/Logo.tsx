@@ -8,7 +8,13 @@ type LogoProps = {
 
 const Logo: React.FC<LogoProps> = ({ style }) => {
   return (
-    <Image src="/logo.svg" alt="Logo" width={250} height={-1} style={style} />
+    <Image
+      src="/logo.svg"
+      alt="Logo"
+      width="0"
+      height="0"
+      style={{ width: "250px", height: "auto", ...style }}
+    />
   );
 };
 
