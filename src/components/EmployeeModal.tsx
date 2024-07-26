@@ -1,35 +1,35 @@
-import { useState } from "react";
-import { TextField, Button, Box, DialogActions } from "@mui/material";
-import Modal from "./Modal";
+import React, { useState } from 'react'
+import { TextField, Button, Box, DialogActions } from '@mui/material'
+import Modal from './Modal'
 
 export type Employee = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+  firstName: string
+  lastName: string
+  email: string
+}
 
 type EmployeeModalProps = {
-  onClose: () => void;
-  onAddEmployee: (employee: Employee) => void;
-};
+  onClose: () => void
+  onAddEmployee: (employee: Employee) => void
+}
 
 const EmployeeModal: React.FC<EmployeeModalProps> = ({
   onClose,
   onAddEmployee,
 }) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
 
   const handleAdd = () => {
     if (firstName && lastName && email) {
-      onAddEmployee({ firstName, lastName, email });
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      onClose();
+      onAddEmployee({ firstName, lastName, email })
+      setFirstName('')
+      setLastName('')
+      setEmail('')
+      onClose()
     }
-  };
+  }
 
   return (
     <Modal title="Add Employee" onClose={onClose}>
@@ -69,7 +69,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         </Button>
       </DialogActions>
     </Modal>
-  );
-};
+  )
+}
 
-export default EmployeeModal;
+export default EmployeeModal

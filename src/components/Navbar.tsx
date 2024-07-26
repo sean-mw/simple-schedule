@@ -1,27 +1,27 @@
-import { signOut, useSession } from "next-auth/react";
-import { AppBar, Toolbar, Button, Stack, Box, Typography } from "@mui/material";
-import Logo from "./Logo";
+import { signOut, useSession } from 'next-auth/react'
+import { AppBar, Toolbar, Button, Stack, Box, Typography } from '@mui/material'
+import Logo from './Logo'
 
 type NavbarProps = {
-  onAddEmployee?: () => void;
-  onRequestAvailability?: () => void;
-  hideButtons?: boolean;
-};
+  onAddEmployee?: () => void
+  onRequestAvailability?: () => void
+  hideButtons?: boolean
+}
 
 const Navbar: React.FC<NavbarProps> = ({
   onAddEmployee,
   onRequestAvailability,
   hideButtons,
 }) => {
-  const session = useSession();
+  const session = useSession()
 
   return (
-    <AppBar position="static" sx={{ bgcolor: "white" }}>
+    <AppBar position="static" sx={{ bgcolor: 'white' }}>
       <Toolbar>
         <Logo style={{ marginRight: 16 }} />
         {!hideButtons && (
           <>
-            <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
@@ -49,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({
         )}
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

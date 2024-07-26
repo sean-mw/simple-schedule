@@ -1,12 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
-let prisma: PrismaClient;
+let prisma: PrismaClient
 
 function getClient() {
   if (!prisma) {
-    prisma = new PrismaClient();
+    prisma = new PrismaClient()
   }
-  return prisma;
+  return prisma
 }
 
-export default getClient;
+export default getClient

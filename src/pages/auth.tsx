@@ -1,6 +1,6 @@
-import { signIn, ClientSafeProvider } from "next-auth/react";
-import { GetServerSideProps } from "next";
-import { useState } from "react";
+import { signIn, ClientSafeProvider } from 'next-auth/react'
+import { GetServerSideProps } from 'next'
+import { useState } from 'react'
 import {
   Avatar,
   Box,
@@ -14,68 +14,68 @@ import {
   Typography,
   Paper,
   Alert,
-} from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+} from '@mui/material'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 
 interface AuthProps {
-  providers: Record<string, ClientSafeProvider> | null;
+  providers: Record<string, ClientSafeProvider> | null
 }
 
 const Auth = ({ providers }: AuthProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     if (isSignUp) {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-      });
+      })
 
       if (res.ok) {
-        const result = await signIn("credentials", {
+        const result = await signIn('credentials', {
           email,
           password,
-          callbackUrl: "/dashboard",
+          callbackUrl: '/dashboard',
           redirect: false,
-        });
+        })
 
         if (result?.error) {
-          setError(result.error);
+          setError(result.error)
         } else {
-          window.location.href = "/dashboard";
+          window.location.href = '/dashboard'
         }
       } else {
-        const data = await res.json();
-        setError(data.error || "Failed to sign up");
+        const data = await res.json()
+        setError(data.error || 'Failed to sign up')
       }
     } else {
-      const res = await signIn("credentials", {
+      const res = await signIn('credentials', {
         redirect: false,
         email,
         password,
-        callbackUrl: "/dashboard",
-      });
+        callbackUrl: '/dashboard',
+      })
 
       if (res?.error) {
         setError(
-          res.error === "CredentialsSignin"
-            ? "Incorrect email or password"
+          res.error === 'CredentialsSignin'
+            ? 'Incorrect email or password'
             : res.error
-        );
+        )
       } else {
-        window.location.href = "/dashboard";
+        window.location.href = '/dashboard'
       }
     }
-  };
+  }
 
   if (!providers) {
     return (
@@ -85,7 +85,7 @@ const Auth = ({ providers }: AuthProps) => {
           No authentication providers found. Please try again later.
         </Alert>
       </Container>
-    );
+    )
   }
 
   return (
@@ -94,19 +94,19 @@ const Auth = ({ providers }: AuthProps) => {
       <Paper elevation={6} sx={{ p: 2, mt: 8, borderRadius: 2 }}>
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {isSignUp ? "Sign Up" : "Sign In"}
+            {isSignUp ? 'Sign Up' : 'Sign In'}
           </Typography>
           {error && (
-            <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+            <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
               {error}
             </Alert>
           )}
@@ -141,7 +141,7 @@ const Auth = ({ providers }: AuthProps) => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              {isSignUp ? "Sign Up" : "Sign In"}
+              {isSignUp ? 'Sign Up' : 'Sign In'}
             </Button>
             <Grid container justifyContent="center">
               <Grid item>
@@ -149,50 +149,50 @@ const Auth = ({ providers }: AuthProps) => {
                   href="#"
                   variant="body2"
                   onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setError(null);
+                    setIsSignUp(!isSignUp)
+                    setError(null)
                   }}
                 >
                   {isSignUp
-                    ? "Already have an account? Sign In"
+                    ? 'Already have an account? Sign In'
                     : "Don't have an account? Sign Up"}
                 </Link>
               </Grid>
             </Grid>
           </Box>
-          <Divider sx={{ width: "100%", my: 2 }}>or</Divider>
+          <Divider sx={{ width: '100%', my: 2 }}>or</Divider>
           {Object.values(providers).map(
             (provider) =>
-              provider.name !== "Credentials" && (
+              provider.name !== 'Credentials' && (
                 <Button
                   key={provider.name}
                   onClick={() =>
-                    signIn(provider.id, { callbackUrl: "/dashboard" })
+                    signIn(provider.id, { callbackUrl: '/dashboard' })
                   }
                   fullWidth
                   variant="outlined"
                   sx={{
                     mt: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "40px",
-                    border: "1px solid #747775",
-                    borderRadius: "4px",
-                    textTransform: "none",
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '40px',
+                    border: '1px solid #747775',
+                    borderRadius: '4px',
+                    textTransform: 'none',
                   }}
                 >
                   <Box
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
+                      display: 'flex',
+                      alignItems: 'center',
                     }}
                   >
                     <Box
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginRight: "12px",
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginRight: '12px',
                       }}
                     >
                       <svg
@@ -200,9 +200,9 @@ const Auth = ({ providers }: AuthProps) => {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 48 48"
                         style={{
-                          display: "block",
-                          height: "20px",
-                          width: "20px",
+                          display: 'block',
+                          height: '20px',
+                          width: '20px',
                         }}
                       >
                         <path
@@ -227,7 +227,7 @@ const Auth = ({ providers }: AuthProps) => {
                     <Typography
                       variant="body2"
                       sx={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontFamily: "'Roboto', arial, sans-serif",
                       }}
                     >
@@ -242,26 +242,26 @@ const Auth = ({ providers }: AuthProps) => {
         </Box>
       </Paper>
     </Container>
-  );
-};
+  )
+}
 
-export const getServerSideProps: GetServerSideProps = async (_context) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const baseUrl =
-    process.env.NEXTAUTH_URL || "https://availability-schedule.vercel.app";
+    process.env.NEXTAUTH_URL || 'https://availability-schedule.vercel.app'
 
   try {
-    const res = await fetch(`${baseUrl}/api/auth/providers`);
-    const providers = await res.json();
+    const res = await fetch(`${baseUrl}/api/auth/providers`)
+    const providers = await res.json()
 
     return {
       props: { providers },
-    };
+    }
   } catch (error) {
-    console.error("Error fetching providers in getServerSideProps:", error);
+    console.error('Error fetching providers in getServerSideProps:', error)
     return {
       props: { providers: null },
-    };
+    }
   }
-};
+}
 
-export default Auth;
+export default Auth

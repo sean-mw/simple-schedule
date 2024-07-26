@@ -1,11 +1,11 @@
-import getClient from "@/lib/prisma";
-import NextAuth, { AuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { compare } from "bcryptjs";
+import getClient from '@/lib/prisma'
+import NextAuth, { AuthOptions } from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { compare } from 'bcryptjs'
 
-const prisma = getClient();
+const prisma = getClient()
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -14,34 +14,34 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
           where: {
             email: credentials?.email,
           },
-        });
+        })
 
         if (user && user.password && credentials?.password) {
-          const isValid = await compare(credentials.password, user.password);
+          const isValid = await compare(credentials.password, user.password)
 
           if (isValid) {
-            return user;
+            return user
           }
         }
 
-        return null;
+        return null
       },
     }),
   ],
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   jwt: {
     secret: process.env.NEXTAUTH_SECRET,
@@ -49,20 +49,20 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (session.user && token) {
-        session.user.id = token.id as string;
+        session.user.id = token.id as string
       }
-      return session;
+      return session
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id
       }
-      return token;
+      return token
     },
   },
   pages: {
-    signIn: "/auth",
+    signIn: '/auth',
   },
-};
+}
 
-export default NextAuth(authOptions);
+export default NextAuth(authOptions)

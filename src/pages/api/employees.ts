@@ -1,31 +1,31 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "../../lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth/[...nextauth]";
+import type { NextApiRequest, NextApiResponse } from 'next'
+import getClient from '../../lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './auth/[...nextauth]'
 
-const prisma = getClient();
+const prisma = getClient()
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions)
 
   switch (req.method) {
-    case "POST":
+    case 'POST':
       if (!session?.user) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({ error: 'Unauthorized' })
       }
-      return createEmployee(req, res, session.user.id);
-    case "GET":
-      return getEmployees(req, res);
-    case "DELETE":
+      return createEmployee(req, res, session.user.id)
+    case 'GET':
+      return getEmployees(req, res)
+    case 'DELETE':
       if (!session?.user) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({ error: 'Unauthorized' })
       }
-      return deleteEmployee(req, res, session.user.id);
+      return deleteEmployee(req, res, session.user.id)
     default:
-      return res.status(405).json({ error: "Method not allowed" });
+      return res.status(405).json({ error: 'Method not allowed' })
   }
 }
 
@@ -34,10 +34,10 @@ async function createEmployee(
   res: NextApiResponse,
   userId: string
 ) {
-  const { email, firstName, lastName } = req.body;
+  const { email, firstName, lastName } = req.body
 
   if (!email || !firstName || !lastName) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ error: 'Missing required fields' })
   }
 
   try {
@@ -48,41 +48,41 @@ async function createEmployee(
         lastName,
         userId,
       },
-    });
-    return res.status(201).json({ message: "Employee created" });
+    })
+    return res.status(201).json({ message: 'Employee created' })
   } catch (error) {
-    return res.status(500).json({ error: "Error creating employee" });
+    return res.status(500).json({ error: 'Error creating employee' })
   }
 }
 
 async function getEmployees(req: NextApiRequest, res: NextApiResponse) {
-  let email: string | undefined;
+  let email: string | undefined
 
-  const { token } = req.query;
+  const { token } = req.query
 
   if (token) {
     const availabilityRequest = await prisma.availabilityRequest.findUnique({
       where: { token: token as string },
-    });
-    email = availabilityRequest?.email;
+    })
+    email = availabilityRequest?.email
   }
 
-  const where: { userId?: string; email?: string } = {};
+  const where: { userId?: string; email?: string } = {}
   if (!email) {
-    const session = await getServerSession(req, res, authOptions);
+    const session = await getServerSession(req, res, authOptions)
     if (!session?.user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ error: 'Unauthorized' })
     }
-    where.userId = session.user.id;
+    where.userId = session.user.id
   } else {
-    where.email = email;
+    where.email = email
   }
 
   try {
-    const employees = await prisma.employee.findMany({ where });
-    return res.status(200).json(employees);
+    const employees = await prisma.employee.findMany({ where })
+    return res.status(200).json(employees)
   } catch (error) {
-    return res.status(500).json({ error: "Error fetching employees" });
+    return res.status(500).json({ error: 'Error fetching employees' })
   }
 }
 
@@ -91,10 +91,10 @@ async function deleteEmployee(
   res: NextApiResponse,
   userId: string
 ) {
-  const { email } = req.query;
+  const { email } = req.query
 
   if (!email) {
-    return res.status(400).json({ error: "Missing email" });
+    return res.status(400).json({ error: 'Missing email' })
   }
 
   try {
@@ -103,9 +103,9 @@ async function deleteEmployee(
         userId,
         email: email as string,
       },
-    });
-    return res.status(200).json({ message: "Employee deleted" });
+    })
+    return res.status(200).json({ message: 'Employee deleted' })
   } catch (error) {
-    return res.status(500).json({ error: "Error deleting employee" });
+    return res.status(500).json({ error: 'Error deleting employee' })
   }
 }

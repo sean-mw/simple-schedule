@@ -1,10 +1,10 @@
-import Image from "next/image";
+import Image from 'next/image'
 
 type LogoProps = {
   style: {
-    marginRight: number;
-  };
-};
+    marginRight: number
+  }
+}
 
 const Logo: React.FC<LogoProps> = ({ style }) => {
   return (
@@ -13,9 +13,9 @@ const Logo: React.FC<LogoProps> = ({ style }) => {
       alt="Logo"
       width="0"
       height="0"
-      style={{ width: "250px", height: "auto", ...style }}
+      style={{ width: '250px', height: 'auto', ...style }}
     />
-  );
-};
+  )
+}
 
-export default Logo;
+export default Logo

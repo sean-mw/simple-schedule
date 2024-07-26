@@ -1,26 +1,26 @@
-import { EmployeeWithAvailability } from "@/components/EmployeeAvailability";
-import { Availability, Employee } from "@prisma/client";
-import axios, { AxiosResponse } from "axios";
+import { EmployeeWithAvailability } from '@/components/EmployeeAvailability'
+import { Availability, Employee } from '@prisma/client'
+import axios, { AxiosResponse } from 'axios'
 
 async function getEmployeeAvailability(
   token?: string
 ): Promise<EmployeeWithAvailability[]> {
-  const employyeesParams = token ? { token } : {};
+  const employyeesParams = token ? { token } : {}
   const employeesResponse: AxiosResponse<Employee[]> = await axios.get(
-    "/api/employees",
+    '/api/employees',
     {
       params: employyeesParams,
     }
-  );
+  )
 
   const availabilitiesParams = token
     ? { email: employeesResponse.data[0].email }
-    : {};
+    : {}
   const availabilitiesResponse: AxiosResponse<
     { email: string; availabilities: Availability[] }[]
-  > = await axios.get("/api/availabilities", {
+  > = await axios.get('/api/availabilities', {
     params: availabilitiesParams,
-  });
+  })
 
   const employeesData = employeesResponse.data.map((employee) => ({
     ...employee,
@@ -32,11 +32,11 @@ async function getEmployeeAvailability(
           day: new Date(availability.day),
           startTime: new Date(availability.startTime),
           endTime: new Date(availability.endTime),
-        }));
+        }))
       }),
-  }));
+  }))
 
-  return employeesData;
+  return employeesData
 }
 
-export default getEmployeeAvailability;
+export default getEmployeeAvailability

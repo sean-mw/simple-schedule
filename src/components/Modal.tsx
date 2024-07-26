@@ -1,33 +1,33 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   IconButton,
   Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 type ModalProps = {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-};
+  title: string
+  onClose: () => void
+  children: React.ReactNode
+}
 
 const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
+      if (event.key === 'Escape') {
+        onClose()
       }
-    };
+    }
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [onClose])
 
   return (
     <Dialog
@@ -35,20 +35,20 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
       onClose={onClose}
       aria-labelledby="modal-title"
       sx={{
-        "& .MuiDialog-paper": {
-          borderRadius: "8px",
-          maxWidth: "600px",
-          width: "100%",
-          position: "relative",
+        '& .MuiDialog-paper': {
+          borderRadius: '8px',
+          maxWidth: '600px',
+          width: '100%',
+          position: 'relative',
         },
       }}
     >
       <DialogTitle
         id="modal-title"
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         <Typography variant="h6">{title}</Typography>
@@ -58,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
       </DialogTitle>
       <DialogContent dividers>{children}</DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

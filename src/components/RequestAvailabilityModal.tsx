@@ -8,18 +8,18 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-} from "@mui/material";
-import Modal from "./Modal";
-import { Employee } from "./EmployeeModal";
+} from '@mui/material'
+import Modal from './Modal'
+import { Employee } from './EmployeeModal'
 
 interface RequestAvailabilityModalProps {
-  employees: Employee[];
-  selectedEmployees: Employee[];
-  selectAll: boolean;
-  onClose: () => void;
-  onSendEmails: () => void;
-  onSelectAll: () => void;
-  onEmployeeSelection: (employee: Employee) => void;
+  employees: Employee[]
+  selectedEmployees: Employee[]
+  selectAll: boolean
+  onClose: () => void
+  onSendEmails: () => void
+  onSelectAll: () => void
+  onEmployeeSelection: (employee: Employee) => void
 }
 
 export default function RequestAvailabilityModal({
@@ -69,5 +69,5 @@ export default function RequestAvailabilityModal({
         Send Requests
       </Button>
     </Modal>
-  );
+  )
 }

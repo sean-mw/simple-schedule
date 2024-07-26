@@ -1,5 +1,5 @@
-import React from "react";
-import { format, addDays, isSameDay } from "date-fns";
+import React from 'react'
+import { format, addDays, isSameDay } from 'date-fns'
 import {
   Table,
   TableBody,
@@ -12,53 +12,53 @@ import {
   IconButton,
   Typography,
   Fab,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import { DayAvailability } from "@/pages/availability";
-import { Employee } from "./EmployeeModal";
-import axios from "axios";
-import { useRouter } from "next/router";
-import { useTheme } from "@mui/material/styles";
+} from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
+import { DayAvailability } from '@/pages/availability'
+import { Employee } from './EmployeeModal'
+import axios from 'axios'
+import { useRouter } from 'next/router'
+import { useTheme } from '@mui/material/styles'
 
 type EmployeeAvailabilityData = {
-  email: string;
-  availabilities: DayAvailability[];
-};
+  email: string
+  availabilities: DayAvailability[]
+}
 
-type EmployeeWithAvailability = Employee & EmployeeAvailabilityData;
+type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
 type AvailabilityTableProps = {
-  startOfCurrentWeek: Date;
-  employees: EmployeeWithAvailability[];
-  onDayClick?: (day: Date) => void;
-};
+  startOfCurrentWeek: Date
+  employees: EmployeeWithAvailability[]
+  onDayClick?: (day: Date) => void
+}
 
-const DAYS_IN_WEEK = 7;
+const DAYS_IN_WEEK = 7
 
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfCurrentWeek,
   employees,
   onDayClick,
 }) => {
-  const router = useRouter();
-  const theme = useTheme();
+  const router = useRouter()
+  const theme = useTheme()
 
   const renderAvailabilityBlock = (availability: DayAvailability) => {
-    const startHour = format(availability.startTime, "h:mm a");
-    const endHour = format(availability.endTime, "h:mm a");
+    const startHour = format(availability.startTime, 'h:mm a')
+    const endHour = format(availability.endTime, 'h:mm a')
     return (
       <Box
         key={availability.id}
         sx={{
           backgroundColor: theme.palette.success.light,
-          borderRadius: "4px",
-          padding: "4px 6px",
-          fontSize: "12px",
-          marginBottom: "5px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          borderRadius: '4px',
+          padding: '4px 6px',
+          fontSize: '12px',
+          marginBottom: '5px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         <span>
@@ -69,16 +69,16 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
             size="small"
             color="error"
             onClick={async () => {
-              await axios.delete(`/api/availabilities`, { data: availability });
-              router.reload(); // TODO: refactor availability page to avoid this reload
+              await axios.delete(`/api/availabilities`, { data: availability })
+              router.reload() // TODO: refactor availability page to avoid this reload
             }}
           >
             <DeleteIcon fontSize="small" />
           </IconButton>
         )}
       </Box>
-    );
-  };
+    )
+  }
 
   return (
     <TableContainer component={Paper}>
@@ -88,7 +88,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
             <TableCell>Employee</TableCell>
             {Array.from({ length: DAYS_IN_WEEK }).map((_, index) => (
               <TableCell key={index}>
-                {format(addDays(startOfCurrentWeek, index), "EEE, MMM d")}
+                {format(addDays(startOfCurrentWeek, index), 'EEE, MMM d')}
               </TableCell>
             ))}
           </TableRow>
@@ -102,29 +102,27 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                 </Typography>
               </TableCell>
               {Array.from({ length: 7 }).map((_, index) => {
-                const date = addDays(startOfCurrentWeek, index);
-                let availability = employee.availabilities
+                const date = addDays(startOfCurrentWeek, index)
+                const availability = employee.availabilities
                   .filter((a) => isSameDay(a.day, date))
-                  .sort(
-                    (a, b) => a.startTime.valueOf() - b.startTime.valueOf()
-                  );
+                  .sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf())
 
                 return (
-                  <TableCell key={index} sx={{ position: "relative" }}>
+                  <TableCell key={index} sx={{ position: 'relative' }}>
                     <Box display="flex" flexDirection="column" gap={1}>
                       {availability.map((a) => renderAvailabilityBlock(a))}
                     </Box>
                     {onDayClick && (
                       <>
-                        <Box sx={{ height: "40px" }}></Box>
+                        <Box sx={{ height: '40px' }}></Box>
                         <Fab
                           color="primary"
                           size="small"
                           onClick={() => onDayClick(date)}
                           sx={{
-                            position: "absolute",
-                            bottom: "8px",
-                            right: "8px",
+                            position: 'absolute',
+                            bottom: '8px',
+                            right: '8px',
                             zIndex: 1,
                           }}
                         >
@@ -133,14 +131,14 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                       </>
                     )}
                   </TableCell>
-                );
+                )
               })}
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-  );
-};
+  )
+}
 
-export default AvailabilityTable;
+export default AvailabilityTable
