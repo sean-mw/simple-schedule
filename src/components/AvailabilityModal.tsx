@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Modal from "./Modal";
-import { DayAvailability } from "@/pages/availability";
 import axios from "axios";
 import {
   Typography,
@@ -14,11 +13,13 @@ import {
 import { LoadingButton } from "@mui/lab";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useRouter } from "next/router";
+import { EmployeeWithAvailability } from "./EmployeeAvailability";
+import { isSameDay } from "date-fns";
 
 type AvailabilityModalProps = {
   token: string;
+  employee: EmployeeWithAvailability;
   date: Date;
-  dayAvailability?: DayAvailability;
   onClose: () => void;
 };
 
@@ -48,8 +49,8 @@ const convertToDate = (time: string, period: string, date: Date) => {
 
 const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   token,
+  employee,
   date,
-  dayAvailability,
   onClose,
 }) => {
   const router = useRouter();
@@ -61,39 +62,11 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    if (dayAvailability) {
-      if (dayAvailability.startTime) {
-        const start = new Date(dayAvailability.startTime);
-        setStartTime(
-          start
-            .toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })
-            .slice(0, -3)
-        );
-        setStartPeriod(start.getHours() < 12 ? "AM" : "PM");
-      }
-      if (dayAvailability.endTime) {
-        const end = new Date(dayAvailability.endTime);
-        setEndTime(
-          end
-            .toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })
-            .slice(0, -3)
-        );
-        setEndPeriod(end.getHours() < 12 ? "AM" : "PM");
-      }
-    } else {
-      setStartTime(null);
-      setEndTime(null);
-    }
-  }, [date, dayAvailability]);
+  const currentAvailabilities = useMemo(() => {
+    return employee.availabilities.filter((availability) =>
+      isSameDay(availability.day, date)
+    );
+  }, [date, employee.availabilities]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +76,29 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
 
     const start = convertToDate(startTime!, startPeriod!, date);
     const end = convertToDate(endTime!, endPeriod!, date);
+
+    if (start >= end) {
+      setErrorMessage("End time must be after start time.");
+      setIsLoading(false);
+      return;
+    }
+
+    for (let availability of currentAvailabilities) {
+      const existingStart = new Date(availability.startTime);
+      const existingEnd = new Date(availability.endTime);
+
+      if (
+        (start >= existingStart && start < existingEnd) ||
+        (end > existingStart && end <= existingEnd) ||
+        (start <= existingStart && end >= existingEnd)
+      ) {
+        setErrorMessage(
+          "The selected time overlaps with an existing availability for this day."
+        );
+        setIsLoading(false);
+        return;
+      }
+    }
 
     const availability = {
       token,

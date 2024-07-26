@@ -85,6 +85,7 @@ export default function Availability() {
         {showAvailabilityModal && clickedDay && (
           <AvailabilityModal
             token={token}
+            employee={employees[0]}
             date={clickedDay}
             onClose={() => setShowAvailabilityModal(false)}
           />
