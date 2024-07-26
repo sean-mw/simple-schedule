@@ -34,6 +34,8 @@ type AvailabilityTableProps = {
   onDayClick?: (day: Date) => void;
 };
 
+const DAYS_IN_WEEK = 7;
+
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfCurrentWeek,
   employees,
@@ -43,8 +45,8 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   const theme = useTheme();
 
   const renderAvailabilityBlock = (availability: DayAvailability) => {
-    const startHour = format(new Date(availability.startTime), "h a");
-    const endHour = format(new Date(availability.endTime), "h a");
+    const startHour = format(availability.startTime, "h:mm a");
+    const endHour = format(availability.endTime, "h:mm a");
     return (
       <Box
         key={availability.id}
@@ -84,7 +86,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
         <TableHead>
           <TableRow>
             <TableCell>Employee</TableCell>
-            {Array.from({ length: 7 }).map((_, index) => (
+            {Array.from({ length: DAYS_IN_WEEK }).map((_, index) => (
               <TableCell key={index}>
                 {format(addDays(startOfCurrentWeek, index), "EEE, MMM d")}
               </TableCell>
@@ -101,9 +103,12 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
               </TableCell>
               {Array.from({ length: 7 }).map((_, index) => {
                 const date = addDays(startOfCurrentWeek, index);
-                const availability = employee.availabilities.filter((a) =>
-                  isSameDay(new Date(a.day), date)
-                );
+                let availability = employee.availabilities
+                  .filter((a) => isSameDay(a.day, date))
+                  .sort(
+                    (a, b) => a.startTime.valueOf() - b.startTime.valueOf()
+                  );
+
                 return (
                   <TableCell key={index} sx={{ position: "relative" }}>
                     <Box display="flex" flexDirection="column" gap={1}>

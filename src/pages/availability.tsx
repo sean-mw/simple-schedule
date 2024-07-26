@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react";
 import { addWeeks, startOfWeek, subWeeks } from "date-fns";
-import axios from "axios";
 import { useRouter } from "next/router";
 import WeeklyCalendar from "@/components/WeeklyCalendar";
 import AvailabilityTable from "@/components/AvailabilityTable";
-import { Employee } from "@/components/EmployeeModal";
-import {
-  EmployeeAvailabilityData,
-  EmployeeWithAvailability,
-} from "@/components/EmployeeAvailability";
+import { EmployeeWithAvailability } from "@/components/EmployeeAvailability";
 import AvailabilityModal from "@/components/AvailabilityModal";
 import { Box, Typography } from "@mui/material";
 import Navbar from "@/components/Navbar";
+import getEmployeeAvailability from "@/lib/get-employee-availability";
 
 export type DayAvailability = {
   id: number;
-  userId: number;
   day: Date;
   startTime: Date;
   endTime: Date;
@@ -38,21 +33,7 @@ export default function Availability() {
 
     const fetchEmployeeAvailability = async () => {
       try {
-        const employeesResponse = await axios.get("/api/employees", {
-          params: { token },
-        });
-        const email = employeesResponse.data[0].email;
-        const availabilitiesResponse = await axios.get("/api/availabilities", {
-          params: { email },
-        });
-        const employeesData = employeesResponse.data.map((employee: any) => ({
-          ...employee,
-          availabilities: availabilitiesResponse.data
-            .filter(
-              (ar: EmployeeAvailabilityData) => ar.email === employee.email
-            )
-            .flatMap((ar: EmployeeAvailabilityData) => ar.availabilities),
-        }));
+        const employeesData = await getEmployeeAvailability(token);
         setEmployees(employeesData);
       } catch (error) {
         console.error("Error fetching employee:", error);

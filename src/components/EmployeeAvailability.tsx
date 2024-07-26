@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { startOfWeek, addWeeks, subWeeks } from "date-fns";
-import {
-  Typography,
-  CircularProgress,
-  Alert,
-  Paper,
-  Container,
-} from "@mui/material";
+import { Typography, CircularProgress, Alert } from "@mui/material";
 import { DayAvailability } from "@/pages/availability";
 import { Employee } from "./EmployeeModal";
 import WeeklyCalendar from "./WeeklyCalendar";
 import AvailabilityTable from "./AvailabilityTable";
+import getEmployeeAvailability from "@/lib/get-employee-availability";
 
 export type EmployeeAvailabilityData = {
   email: string;
@@ -30,18 +24,7 @@ const EmployeeAvailability: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const employeesResponse = await axios.get("/api/employees");
-        const availabilitiesResponse = await axios.get("/api/availabilities");
-
-        const employeesData = employeesResponse.data.map((employee: any) => ({
-          ...employee,
-          availabilities: availabilitiesResponse.data
-            .filter(
-              (ar: EmployeeAvailabilityData) => ar.email === employee.email
-            )
-            .flatMap((ar: EmployeeAvailabilityData) => ar.availabilities),
-        }));
-
+        const employeesData = await getEmployeeAvailability();
         setEmployees(employeesData);
       } catch (err) {
         setError("Error fetching data");
