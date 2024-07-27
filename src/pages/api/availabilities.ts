@@ -29,7 +29,7 @@ async function createAvailability(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    await prisma.availability.create({
+    const availability = await prisma.availability.create({
       data: {
         day: new Date(day),
         startTime: new Date(startTime),
@@ -37,7 +37,9 @@ async function createAvailability(req: NextApiRequest, res: NextApiResponse) {
         token,
       },
     })
-    return res.status(201).json({ message: 'Availability created' })
+    return res
+      .status(201)
+      .json({ message: 'Availability created', availability })
   } catch (error) {
     return res.status(500).json({ error: 'Error creating availability' })
   }

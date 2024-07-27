@@ -1,40 +1,32 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { startOfWeek, addWeeks, subWeeks } from 'date-fns'
-import { Typography, CircularProgress, Alert } from '@mui/material'
-import { DayAvailability } from '@/pages/availability'
+import { Typography } from '@mui/material'
 import { Employee } from './EmployeeModal'
 import WeeklyCalendar from './WeeklyCalendar'
 import AvailabilityTable from './AvailabilityTable'
-import getEmployeeAvailability from '@/lib/get-employee-availability'
+import { Availability } from '@prisma/client'
 
 export type EmployeeAvailabilityData = {
   email: string
-  availabilities: DayAvailability[]
+  availabilities: Availability[]
 }
 
 export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
-const EmployeeAvailability: React.FC = () => {
+type EmployeeAvailabilityProps = {
+  title: string
+  employees: EmployeeWithAvailability[]
+  onDeleteAvailability?: (availability: Availability) => void
+  onDayClick?: (day: Date) => void
+}
+
+const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
+  title,
+  employees,
+  onDeleteAvailability,
+  onDayClick,
+}) => {
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
-  const [employees, setEmployees] = useState<EmployeeWithAvailability[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const employeesData = await getEmployeeAvailability()
-        setEmployees(employeesData)
-      } catch (err) {
-        setError('Error fetching data')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
 
   const nextWeek = () => {
     setCurrentWeek(addWeeks(currentWeek, 1))
@@ -49,27 +41,19 @@ const EmployeeAvailability: React.FC = () => {
   return (
     <>
       <Typography variant="h4" align="center" gutterBottom>
-        Employee Availability
+        {title}
       </Typography>
-      {loading ? (
-        <CircularProgress sx={{ display: 'block', margin: '16px auto' }} />
-      ) : error ? (
-        <Alert severity="error" sx={{ mt: 4 }}>
-          {error}
-        </Alert>
-      ) : (
-        <>
-          <WeeklyCalendar
-            currentWeek={currentWeek}
-            onNextWeek={nextWeek}
-            onPrevWeek={prevWeek}
-          />
-          <AvailabilityTable
-            startOfCurrentWeek={startOfCurrentWeek}
-            employees={employees}
-          />
-        </>
-      )}
+      <WeeklyCalendar
+        currentWeek={currentWeek}
+        onNextWeek={nextWeek}
+        onPrevWeek={prevWeek}
+      />
+      <AvailabilityTable
+        startOfCurrentWeek={startOfCurrentWeek}
+        employees={employees}
+        onDeleteAvailability={onDeleteAvailability}
+        onDayClick={onDayClick}
+      />
     </>
   )
 }

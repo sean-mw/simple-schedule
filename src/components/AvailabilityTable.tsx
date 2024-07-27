@@ -15,15 +15,14 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-import { DayAvailability } from '@/pages/availability'
 import { Employee } from './EmployeeModal'
 import axios from 'axios'
-import { useRouter } from 'next/router'
 import { useTheme } from '@mui/material/styles'
+import { Availability } from '@prisma/client'
 
 type EmployeeAvailabilityData = {
   email: string
-  availabilities: DayAvailability[]
+  availabilities: Availability[]
 }
 
 type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
@@ -31,6 +30,7 @@ type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 type AvailabilityTableProps = {
   startOfCurrentWeek: Date
   employees: EmployeeWithAvailability[]
+  onDeleteAvailability?: (availability: Availability) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -39,12 +39,12 @@ const DAYS_IN_WEEK = 7
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfCurrentWeek,
   employees,
+  onDeleteAvailability,
   onDayClick,
 }) => {
-  const router = useRouter()
   const theme = useTheme()
 
-  const renderAvailabilityBlock = (availability: DayAvailability) => {
+  const renderAvailabilityBlock = (availability: Availability) => {
     const startHour = format(availability.startTime, 'h:mm a')
     const endHour = format(availability.endTime, 'h:mm a')
     return (
@@ -70,7 +70,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
             color="error"
             onClick={async () => {
               await axios.delete(`/api/availabilities`, { data: availability })
-              router.reload() // TODO: refactor availability page to avoid this reload
+              onDeleteAvailability && onDeleteAvailability(availability)
             }}
           >
             <DeleteIcon fontSize="small" />

@@ -2,34 +2,58 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import EmployeeModal, { Employee } from '@/components/EmployeeModal'
 import RequestAvailabilityModal from '@/components/RequestAvailabilityModal'
-import EmployeeAvailability from '@/components/EmployeeAvailability'
 import { signIn, useSession } from 'next-auth/react'
 import Spinner from '@/components/Spinner'
 import { Box, Alert } from '@mui/material'
 import Navbar from '@/components/Navbar'
+import getEmployeeAvailability from '@/lib/get-employee-availability'
+import EmployeeAvailability from '@/components/EmployeeAvailability'
+import { Availability } from '@prisma/client'
+
+export type EmployeeAvailabilityData = {
+  email: string
+  availabilities: Availability[]
+}
+
+export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
-  const [employees, setEmployees] = useState<Employee[]>([])
+  const [employees, setEmployees] = useState<EmployeeWithAvailability[]>([])
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [showEmployeeModal, setShowEmployeeModal] = useState(false)
   const [showRequestAvailabilityModal, setShowRequestAvailabilityModal] =
     useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const employeesData = await getEmployeeAvailability()
+        setEmployees(employeesData)
+      } catch (err) {
+        setErrorMessage('Error fetching employee availability data.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (session) {
-      axios.get('/api/employees').then((response) => {
-        setEmployees(response.data)
-      })
+      fetchData()
     }
   }, [session])
 
-  if (status === 'loading') {
-    return <Spinner />
+  if (status === 'loading' && !loading) {
+    setLoading(true)
   } else if (status === 'unauthenticated') {
     signIn()
+    !loading && setLoading(true)
+  }
+
+  if (loading) {
     return <Spinner />
   }
 
@@ -40,7 +64,7 @@ export default function Dashboard() {
       setErrorMessage('Employee already exists')
       setTimeout(() => setErrorMessage(''), 3000)
     } else {
-      setEmployees([...employees, employee])
+      setEmployees([...employees, { ...employee, availabilities: [] }])
       axios.post('/api/employees', employee)
     }
   }
@@ -99,7 +123,10 @@ export default function Dashboard() {
             onEmployeeSelection={handleEmployeeSelection}
           />
         )}
-        <EmployeeAvailability />
+        <EmployeeAvailability
+          title={'Employee Availability'}
+          employees={employees}
+        />
       </Box>
     </Box>
   )

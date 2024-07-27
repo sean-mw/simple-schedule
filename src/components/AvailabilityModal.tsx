@@ -12,15 +12,16 @@ import {
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { useRouter } from 'next/router'
 import { EmployeeWithAvailability } from './EmployeeAvailability'
 import { isSameDay } from 'date-fns'
+import { Availability } from '@prisma/client'
 
 type AvailabilityModalProps = {
   token: string
   employee: EmployeeWithAvailability
   date: Date
   onClose: () => void
+  onSuccess: (availability: Availability) => void
 }
 
 const generateTimeOptions = () => {
@@ -52,8 +53,8 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   employee,
   date,
   onClose,
+  onSuccess,
 }) => {
-  const router = useRouter()
   const [startTime, setStartTime] = useState<string | null>(null)
   const [startPeriod, setStartPeriod] = useState<string | null>('AM')
   const [endTime, setEndTime] = useState<string | null>(null)
@@ -108,13 +109,13 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
     }
 
     try {
-      await axios.post('/api/availabilities', availability)
+      const response = await axios.post('/api/availabilities', availability)
       setIsSuccess(true)
       setTimeout(() => {
         setIsSuccess(false)
         onClose()
-        router.reload() // TODO: refactor availability page to avoid this reload
-      }, 2000)
+      }, 1000)
+      onSuccess(response.data.availability)
     } catch (error) {
       setErrorMessage('Failed to submit availability. Please try again.')
     } finally {
