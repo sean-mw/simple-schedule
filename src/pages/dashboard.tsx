@@ -19,7 +19,7 @@ export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
-  const [employees, setEmployees] = useState<EmployeeWithAvailability[]>([])
+  const [employees, setEmployees] = useState<EmployeeWithAvailability[]>()
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [showEmployeeModal, setShowEmployeeModal] = useState(false)
@@ -41,10 +41,10 @@ export default function Dashboard() {
       }
     }
 
-    if (session) {
+    if (session && !employees) {
       fetchData()
     }
-  }, [session])
+  }, [employees, session])
 
   if (status === 'loading' && !loading) {
     setLoading(true)
@@ -59,12 +59,12 @@ export default function Dashboard() {
 
   const handleAddEmployee = (employee: Employee) => {
     const email = employee.email
-    const existingEmployee = employees.find((e) => e.email === email)
+    const existingEmployee = employees?.find((e) => e.email === email)
     if (existingEmployee) {
       setErrorMessage('Employee already exists')
       setTimeout(() => setErrorMessage(''), 3000)
     } else {
-      setEmployees([...employees, { ...employee, availabilities: [] }])
+      setEmployees([...(employees ?? []), { ...employee, availabilities: [] }])
       axios.post('/api/employees', employee)
     }
   }
@@ -78,7 +78,7 @@ export default function Dashboard() {
     if (selectAll) {
       setSelectedEmployees([])
     } else {
-      setSelectedEmployees(employees)
+      setSelectedEmployees(employees ?? [])
     }
     setSelectAll(!selectAll)
   }
@@ -114,7 +114,7 @@ export default function Dashboard() {
         )}
         {showRequestAvailabilityModal && (
           <RequestAvailabilityModal
-            employees={employees}
+            employees={employees ?? []}
             selectedEmployees={selectedEmployees}
             selectAll={selectAll}
             onClose={() => setShowRequestAvailabilityModal(false)}
@@ -125,7 +125,7 @@ export default function Dashboard() {
         )}
         <EmployeeAvailability
           title={'Employee Availability'}
-          employees={employees}
+          employees={employees ?? []}
         />
       </Box>
     </Box>
