@@ -126,6 +126,9 @@ export default function Dashboard() {
         <EmployeeAvailability
           title={'Employee Availability'}
           employees={employees ?? []}
+          onDeleteEmployee={(employee: Employee) => {
+            setEmployees(employees?.filter((e) => e.email !== employee.email))
+          }}
         />
       </Box>
     </Box>

@@ -17,6 +17,7 @@ type EmployeeAvailabilityProps = {
   title: string
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
+  onDeleteEmployee?: (employee: Employee) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -24,6 +25,7 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
   title,
   employees,
   onDeleteAvailability,
+  onDeleteEmployee,
   onDayClick,
 }) => {
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
@@ -52,6 +54,7 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
         startOfCurrentWeek={startOfCurrentWeek}
         employees={employees}
         onDeleteAvailability={onDeleteAvailability}
+        onDeleteEmployee={onDeleteEmployee}
         onDayClick={onDayClick}
       />
     </>

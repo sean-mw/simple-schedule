@@ -31,6 +31,7 @@ type AvailabilityTableProps = {
   startOfCurrentWeek: Date
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
+  onDeleteEmployee?: (employee: Employee) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -40,6 +41,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfCurrentWeek,
   employees,
   onDeleteAvailability,
+  onDeleteEmployee,
   onDayClick,
 }) => {
   const theme = useTheme()
@@ -64,13 +66,13 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
         <span>
           {startHour} - {endHour}
         </span>
-        {onDayClick && (
+        {onDeleteAvailability && (
           <IconButton
             size="small"
             color="error"
             onClick={async () => {
               await axios.delete(`/api/availabilities`, { data: availability })
-              onDeleteAvailability && onDeleteAvailability(availability)
+              onDeleteAvailability(availability)
             }}
           >
             <DeleteIcon fontSize="small" />
@@ -97,9 +99,30 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
           {employees.map((employee) => (
             <TableRow key={employee.email}>
               <TableCell>
-                <Typography fontWeight="bold">
-                  {employee.firstName} {employee.lastName}
-                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography fontWeight="bold">
+                    {employee.firstName} {employee.lastName}
+                  </Typography>
+                  {onDeleteEmployee && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={async () => {
+                        await axios.delete(`/api/employees`, {
+                          params: { email: employee.email },
+                        })
+                        onDeleteEmployee(employee)
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
               </TableCell>
               {Array.from({ length: 7 }).map((_, index) => {
                 const date = addDays(startOfCurrentWeek, index)
