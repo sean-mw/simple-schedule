@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { v4 as uuidv4 } from 'uuid'
 import getClient from '../../lib/prisma'
+import { getTransporter } from '@/lib/nodemailer'
 
 const prisma = getClient()
 
@@ -38,24 +39,13 @@ async function createAvailabilityRequests(
 
       const link = `${process.env.NEXT_PUBLIC_URL}/availability?token=${token}`
 
-      // TODO: remove console log once email service is set up
-      console.log(`Availability request link for ${email}: ${link}`)
-
-      // TODO: Set up Nodemailer or any other email service
-      //   const transporter = nodemailer.createTransport({
-      //     service: "gmail",
-      //     auth: {
-      //       user: process.env.EMAIL_USER,
-      //       pass: process.env.EMAIL_PASS,
-      //     },
-      //   });
-
-      //   await transporter.sendMail({
-      //     from: process.env.EMAIL_USER,
-      //     to: email,
-      //     subject: "Select Your Availability",
-      //     text: `Please select your availability by clicking the following link: ${link}`,
-      //   });
+      const transporter = getTransporter()
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Select Your Availability',
+        text: `Please select your availability by clicking the following link:\n\n${link}`,
+      })
     }
 
     return res
