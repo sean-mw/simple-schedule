@@ -20,8 +20,6 @@ export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const [employees, setEmployees] = useState<EmployeeWithAvailability[]>()
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
-  const [selectAll, setSelectAll] = useState(false)
   const [showEmployeeModal, setShowEmployeeModal] = useState(false)
   const [showRequestAvailabilityModal, setShowRequestAvailabilityModal] =
     useState(false)
@@ -69,31 +67,6 @@ export default function Dashboard() {
     }
   }
 
-  const handleSendEmails = async () => {
-    const emails = selectedEmployees.map((e) => e.email)
-    await axios.post('/api/availability-requests', { emails })
-  }
-
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedEmployees([])
-    } else {
-      setSelectedEmployees(employees ?? [])
-    }
-    setSelectAll(!selectAll)
-  }
-
-  const handleEmployeeSelection = (employee: Employee) => {
-    if (selectedEmployees.includes(employee)) {
-      setSelectedEmployees(selectedEmployees.filter((e) => e !== employee))
-      if (selectAll) {
-        setSelectAll(false)
-      }
-    } else {
-      setSelectedEmployees([...selectedEmployees, employee])
-    }
-  }
-
   return (
     <Box>
       <Navbar
@@ -115,12 +88,7 @@ export default function Dashboard() {
         {showRequestAvailabilityModal && (
           <RequestAvailabilityModal
             employees={employees ?? []}
-            selectedEmployees={selectedEmployees}
-            selectAll={selectAll}
             onClose={() => setShowRequestAvailabilityModal(false)}
-            onSendEmails={handleSendEmails}
-            onSelectAll={handleSelectAll}
-            onEmployeeSelection={handleEmployeeSelection}
           />
         )}
         <EmployeeAvailability
