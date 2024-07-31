@@ -1,15 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import Modal from './Modal'
 import axios from 'axios'
-import {
-  Typography,
-  Alert,
-  Box,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-} from '@mui/material'
+import { Box, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { EmployeeWithAvailability } from './EmployeeAvailability'
@@ -126,15 +118,12 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   const timeOptions = generateTimeOptions()
 
   return (
-    <Modal title="Add Availability" onClose={onClose}>
-      <Typography variant="h5" align="center" gutterBottom mb={2}>
-        Availability for {date.toDateString()}
-      </Typography>
-      {errorMessage && (
-        <Alert severity="error" sx={{ my: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+    <Modal
+      title="Add Availability"
+      subtitle={`Availability for ${date.toDateString()}`}
+      onClose={onClose}
+      errorMessage={errorMessage}
+    >
       <form onSubmit={handleSubmit}>
         <Box mb={2} display="flex" gap={2}>
           <FormControl fullWidth required>

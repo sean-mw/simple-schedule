@@ -5,16 +5,25 @@ import {
   DialogContent,
   IconButton,
   Typography,
+  Alert,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 
 type ModalProps = {
   title: string
+  subtitle?: string
+  errorMessage?: string
   onClose: () => void
   children: React.ReactNode
 }
 
-const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({
+  title,
+  subtitle,
+  errorMessage,
+  onClose,
+  children,
+}) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -56,7 +65,19 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>{children}</DialogContent>
+      <DialogContent dividers>
+        {subtitle && (
+          <Typography variant="h5" align="center" gutterBottom mb={2}>
+            {subtitle}
+          </Typography>
+        )}
+        {errorMessage && (
+          <Alert severity="error" sx={subtitle ? { my: 2 } : { mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+        {children}
+      </DialogContent>
     </Dialog>
   )
 }

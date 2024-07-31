@@ -25,8 +25,8 @@ async function createAvailabilityRequests(
 ) {
   const { emails } = req.body
 
-  if (!emails) {
-    return res.status(400).json({ error: 'Missing required fields' })
+  if (!emails || !Array.isArray(emails) || emails.length === 0) {
+    return res.status(400).json({ error: 'Missing/invalid fields.' })
   }
 
   try {

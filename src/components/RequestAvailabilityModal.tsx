@@ -25,6 +25,7 @@ export default function RequestAvailabilityModal({
 }: RequestAvailabilityModalProps) {
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
   const [selectAll, setSelectAll] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleEmployeeSelection = (employee: Employee) => {
     if (selectedEmployees.includes(employee)) {
@@ -42,13 +43,27 @@ export default function RequestAvailabilityModal({
   }
 
   const handleSendEmails = async () => {
+    setErrorMessage('')
     const emails = selectedEmployees.map((e) => e.email)
-    await axios.post('/api/availability-requests', { emails })
+    if (emails.length === 0) {
+      return setErrorMessage('Please select at least one employee.')
+    }
+    try {
+      await axios.post('/api/availability-requests', { emails })
+    } catch {
+      return setErrorMessage(
+        'Failed to send availability requests. Please try again.'
+      )
+    }
     onClose()
   }
 
   return (
-    <Modal title="Send Availability Requests" onClose={onClose}>
+    <Modal
+      title="Send Availability Requests"
+      onClose={onClose}
+      errorMessage={errorMessage}
+    >
       {employees.length > 0 && (
         <Box mb={2}>
           <FormGroup>
