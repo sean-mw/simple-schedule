@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import EmployeeModal, { Employee } from '@/components/EmployeeModal'
 import RequestAvailabilityModal from '@/components/RequestAvailabilityModal'
 import { signIn, useSession } from 'next-auth/react'
@@ -55,16 +54,8 @@ export default function Dashboard() {
     return <Spinner />
   }
 
-  const handleAddEmployee = (employee: Employee) => {
-    const email = employee.email
-    const existingEmployee = employees?.find((e) => e.email === email)
-    if (existingEmployee) {
-      setErrorMessage('Employee already exists')
-      setTimeout(() => setErrorMessage(''), 3000)
-    } else {
-      setEmployees([...(employees ?? []), { ...employee, availabilities: [] }])
-      axios.post('/api/employees', employee)
-    }
+  const onAddEmployee = (employee: Employee) => {
+    setEmployees([...(employees ?? []), { ...employee, availabilities: [] }])
   }
 
   return (
@@ -81,8 +72,9 @@ export default function Dashboard() {
         )}
         {showEmployeeModal && (
           <EmployeeModal
+            employees={employees ?? []}
             onClose={() => setShowEmployeeModal(false)}
-            onAddEmployee={handleAddEmployee}
+            onAddEmployee={onAddEmployee}
           />
         )}
         {showRequestAvailabilityModal && (

@@ -2,7 +2,6 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
-  Button,
   Box,
   List,
   ListItem,
@@ -11,8 +10,9 @@ import {
 } from '@mui/material'
 import Modal from './Modal'
 import { Employee } from './EmployeeModal'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Form from './Form'
 
 interface RequestAvailabilityModalProps {
   employees: Employee[]
@@ -26,6 +26,18 @@ export default function RequestAvailabilityModal({
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle')
+
+  useEffect(() => {
+    if (employees.length === 0) {
+      setStatus('error')
+      setErrorMessage(
+        'Please add employees before sending availability requests.'
+      )
+    }
+  }, [employees])
 
   const handleEmployeeSelection = (employee: Employee) => {
     if (selectedEmployees.includes(employee)) {
@@ -42,20 +54,31 @@ export default function RequestAvailabilityModal({
     }
   }
 
-  const handleSendEmails = async () => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     setErrorMessage('')
     const emails = selectedEmployees.map((e) => e.email)
     if (emails.length === 0) {
+      setStatus('error')
       return setErrorMessage('Please select at least one employee.')
     }
     try {
+      setStatus('loading')
       await axios.post('/api/availability-requests', { emails })
+      setStatus('success')
+      setTimeout(() => {
+        setStatus('idle')
+        setSelectedEmployees([])
+        setSelectAll(false)
+        onClose()
+      }, 500)
     } catch {
+      setStatus('error')
       return setErrorMessage(
         'Failed to send availability requests. Please try again.'
       )
     }
-    onClose()
   }
 
   return (
@@ -64,51 +87,49 @@ export default function RequestAvailabilityModal({
       onClose={onClose}
       errorMessage={errorMessage}
     >
-      {employees.length > 0 && (
-        <Box mb={2}>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectAll}
-                  onChange={(e) => {
-                    setSelectAll(e.target.checked)
-                    e.target.checked
-                      ? setSelectedEmployees(employees)
-                      : setSelectedEmployees([])
-                  }}
-                />
-              }
-              label="Select All"
-            />
-          </FormGroup>
-          <List>
-            {employees.map((employee) => (
-              <ListItem key={employee.email} divider>
-                <ListItemText
-                  primary={`${employee.firstName} ${employee.lastName}`}
-                  secondary={employee.email}
-                />
-                <ListItemSecondaryAction>
-                  <Checkbox
-                    edge="end"
-                    checked={selectedEmployees.includes(employee)}
-                    onChange={() => handleEmployeeSelection(employee)}
-                  />
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      )}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSendEmails}
-        fullWidth
+      <Form
+        onSubmit={onSubmit}
+        status={status}
+        disabled={employees.length === 0}
       >
-        Send Requests
-      </Button>
+        {employees.length > 0 && (
+          <Box mb={2}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectAll}
+                    onChange={(e) => {
+                      setSelectAll(e.target.checked)
+                      e.target.checked
+                        ? setSelectedEmployees(employees)
+                        : setSelectedEmployees([])
+                    }}
+                  />
+                }
+                label="Select All"
+              />
+            </FormGroup>
+            <List>
+              {employees.map((employee) => (
+                <ListItem key={employee.email} divider>
+                  <ListItemText
+                    primary={`${employee.firstName} ${employee.lastName}`}
+                    secondary={employee.email}
+                  />
+                  <ListItemSecondaryAction>
+                    <Checkbox
+                      edge="end"
+                      checked={selectedEmployees.includes(employee)}
+                      onChange={() => handleEmployeeSelection(employee)}
+                    />
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        )}
+      </Form>
     </Modal>
   )
 }

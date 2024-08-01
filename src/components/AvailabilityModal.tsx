@@ -2,11 +2,10 @@ import React, { useMemo, useState } from 'react'
 import Modal from './Modal'
 import axios from 'axios'
 import { Box, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { EmployeeWithAvailability } from './EmployeeAvailability'
 import { isSameDay } from 'date-fns'
 import { Availability } from '@prisma/client'
+import Form from './Form'
 
 type AvailabilityModalProps = {
   token: string
@@ -51,8 +50,9 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   const [startPeriod, setStartPeriod] = useState<string | null>('AM')
   const [endTime, setEndTime] = useState<string | null>(null)
   const [endPeriod, setEndPeriod] = useState<string | null>('AM')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
   const currentAvailabilities = useMemo(() => {
@@ -61,19 +61,17 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
     )
   }, [date, employee.availabilities])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setIsSuccess(false)
+    setStatus('loading')
     setErrorMessage('')
 
     const start = convertToDate(startTime!, startPeriod!, date)
     const end = convertToDate(endTime!, endPeriod!, date)
 
     if (start >= end) {
-      setErrorMessage('End time must be after start time.')
-      setIsLoading(false)
-      return
+      setStatus('error')
+      return setErrorMessage('End time must be after start time.')
     }
 
     for (const availability of currentAvailabilities) {
@@ -85,11 +83,10 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
         (end > existingStart && end <= existingEnd) ||
         (start <= existingStart && end >= existingEnd)
       ) {
-        setErrorMessage(
+        setStatus('error')
+        return setErrorMessage(
           'The selected time overlaps with an existing availability for this day.'
         )
-        setIsLoading(false)
-        return
       }
     }
 
@@ -102,16 +99,15 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
 
     try {
       const response = await axios.post('/api/availabilities', availability)
-      setIsSuccess(true)
+      setStatus('success')
       setTimeout(() => {
-        setIsSuccess(false)
+        setStatus('idle')
         onClose()
-      }, 1000)
+      }, 500)
       onSuccess(response.data.availability)
     } catch (error) {
-      setErrorMessage('Failed to submit availability. Please try again.')
-    } finally {
-      setIsLoading(false)
+      setStatus('error')
+      return setErrorMessage('Failed to submit availability. Please try again.')
     }
   }
 
@@ -124,7 +120,7 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
       onClose={onClose}
       errorMessage={errorMessage}
     >
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={onSubmit} status={status}>
         <Box mb={2} display="flex" gap={2}>
           <FormControl fullWidth required>
             <InputLabel id="start-time-label">Start Time</InputLabel>
@@ -183,18 +179,7 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
             </Select>
           </FormControl>
         </Box>
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          color={isSuccess ? 'success' : 'primary'}
-          fullWidth
-          loading={isLoading}
-          loadingPosition="start"
-          startIcon={isSuccess ? <CheckCircleIcon /> : null}
-        >
-          {isSuccess ? 'Success' : 'Submit'}
-        </LoadingButton>
-      </form>
+      </Form>
     </Modal>
   )
 }
