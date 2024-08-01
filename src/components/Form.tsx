@@ -7,6 +7,7 @@ type FormProps = {
   children: React.ReactNode
   status: 'idle' | 'loading' | 'success' | 'error'
   disabled?: boolean
+  submitButtonText?: string
 }
 
 const Form: React.FC<FormProps> = ({
@@ -14,6 +15,7 @@ const Form: React.FC<FormProps> = ({
   children,
   status,
   disabled,
+  submitButtonText,
 }) => {
   return (
     <form onSubmit={onSubmit}>
@@ -28,7 +30,7 @@ const Form: React.FC<FormProps> = ({
         startIcon={status === 'success' && <CheckCircleIcon />}
         disabled={disabled || status === 'loading'}
       >
-        {status === 'success' ? 'Success' : 'Submit'}
+        {status === 'success' ? 'Success' : submitButtonText || 'Submit'}
       </LoadingButton>
     </form>
   )

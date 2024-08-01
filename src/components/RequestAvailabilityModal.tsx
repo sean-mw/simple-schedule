@@ -91,6 +91,7 @@ export default function RequestAvailabilityModal({
         onSubmit={onSubmit}
         status={status}
         disabled={employees.length === 0}
+        submitButtonText="Send Requests"
       >
         {employees.length > 0 && (
           <Box mb={2}>
