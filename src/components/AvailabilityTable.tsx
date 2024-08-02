@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import {
   Table,
@@ -19,6 +19,8 @@ import { Employee } from './EmployeeModal'
 import axios from 'axios'
 import { useTheme } from '@mui/material/styles'
 import { Availability } from '@prisma/client'
+import Modal from './Modal'
+import Form from './Form'
 
 type EmployeeAvailabilityData = {
   email: string
@@ -45,6 +47,10 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   onDayClick,
 }) => {
   const theme = useTheme()
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee>()
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle')
 
   const renderAvailabilityBlock = (availability: Availability) => {
     const startHour = format(availability.startTime, 'h:mm a')
@@ -83,84 +89,122 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Employee</TableCell>
-            {Array.from({ length: DAYS_IN_WEEK }).map((_, index) => (
-              <TableCell key={index}>
-                {format(addDays(startOfCurrentWeek, index), 'EEE, MMM d')}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {employees.map((employee) => (
-            <TableRow key={employee.email}>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography fontWeight="bold">
-                    {employee.firstName} {employee.lastName}
-                  </Typography>
-                  {onDeleteEmployee && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={async () => {
-                        await axios.delete(`/api/employees`, {
-                          params: { email: employee.email },
-                        })
-                        onDeleteEmployee(employee)
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                </Box>
-              </TableCell>
-              {Array.from({ length: 7 }).map((_, index) => {
-                const date = addDays(startOfCurrentWeek, index)
-                const availability = employee.availabilities
-                  .filter((a) => isSameDay(a.day, date))
-                  .sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf())
-
-                return (
-                  <TableCell key={index} sx={{ position: 'relative' }}>
-                    <Box display="flex" flexDirection="column" gap={1}>
-                      {availability.map((a) => renderAvailabilityBlock(a))}
-                    </Box>
-                    {onDayClick && (
-                      <>
-                        <Box sx={{ height: '40px' }}></Box>
-                        <Fab
-                          color="primary"
-                          size="small"
-                          onClick={() => onDayClick(date)}
-                          sx={{
-                            position: 'absolute',
-                            bottom: '8px',
-                            right: '8px',
-                            zIndex: 1,
-                          }}
-                        >
-                          <AddIcon />
-                        </Fab>
-                      </>
-                    )}
-                  </TableCell>
-                )
-              })}
+    <>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Employee</TableCell>
+              {Array.from({ length: DAYS_IN_WEEK }).map((_, index) => (
+                <TableCell key={index}>
+                  {format(addDays(startOfCurrentWeek, index), 'EEE, MMM d')}
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {employees.map((employee) => (
+              <TableRow key={employee.email}>
+                <TableCell>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography fontWeight="bold">
+                      {employee.firstName} {employee.lastName}
+                    </Typography>
+                    {onDeleteEmployee && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={async () => {
+                          setEmployeeToDelete(employee)
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                </TableCell>
+                {Array.from({ length: 7 }).map((_, index) => {
+                  const date = addDays(startOfCurrentWeek, index)
+                  const availability = employee.availabilities
+                    .filter((a) => isSameDay(a.day, date))
+                    .sort(
+                      (a, b) => a.startTime.valueOf() - b.startTime.valueOf()
+                    )
+
+                  return (
+                    <TableCell key={index} sx={{ position: 'relative' }}>
+                      <Box display="flex" flexDirection="column" gap={1}>
+                        {availability.map((a) => renderAvailabilityBlock(a))}
+                      </Box>
+                      {onDayClick && (
+                        <>
+                          <Box sx={{ height: '40px' }}></Box>
+                          <Fab
+                            color="primary"
+                            size="small"
+                            onClick={() => onDayClick(date)}
+                            sx={{
+                              position: 'absolute',
+                              bottom: '8px',
+                              right: '8px',
+                              zIndex: 1,
+                            }}
+                          >
+                            <AddIcon />
+                          </Fab>
+                        </>
+                      )}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {onDeleteEmployee && employeeToDelete && (
+        <Modal
+          title="Confirm Deletion"
+          onClose={() => setEmployeeToDelete(undefined)}
+        >
+          <Form
+            onSubmit={async (e) => {
+              e.preventDefault()
+              setStatus('loading')
+              await axios.delete(`/api/employees`, {
+                params: { email: employeeToDelete.email },
+              })
+              setStatus('success')
+              setTimeout(() => {
+                onDeleteEmployee(employeeToDelete)
+                setEmployeeToDelete(undefined)
+                setStatus('idle')
+              }, 500)
+            }}
+            status={status}
+            submitButtonText="Delete Employee"
+          >
+            <Box mb={2}>
+              <Typography>
+                Are you sure you want to delete{' '}
+                <Typography component="span" fontWeight="bold">
+                  {employeeToDelete.firstName} {employeeToDelete.lastName}
+                </Typography>
+                ?
+              </Typography>
+              <Typography color="error">
+                This action cannot be undone.
+              </Typography>
+            </Box>
+          </Form>
+        </Modal>
+      )}
+    </>
   )
 }
 
