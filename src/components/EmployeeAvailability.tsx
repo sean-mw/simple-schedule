@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { startOfWeek, addWeeks, subWeeks } from 'date-fns'
-import { Typography } from '@mui/material'
+import React, { useMemo, useState } from 'react'
+import { addDays, addWeeks, subWeeks, subDays, startOfWeek } from 'date-fns'
+import { Typography, useMediaQuery, useTheme } from '@mui/material'
 import { Employee } from './EmployeeModal'
-import WeeklyCalendar from './WeeklyCalendar'
+import IncrementalCalendar from './IncrementalCalendar'
 import AvailabilityTable from './AvailabilityTable'
 import { Availability } from '@prisma/client'
 
@@ -28,30 +28,46 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
   onDeleteEmployee,
   onDayClick,
 }) => {
-  const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
+  const [currentDate, setCurrentDate] = useState<Date>(new Date())
+  const theme = useTheme()
+  const useDaysIncrement = useMediaQuery(theme.breakpoints.down('md'))
+  const increment = useDaysIncrement ? 'days' : 'weeks'
+  const [startOfCurrentRange, endOfCurrentRange] = useMemo(() => {
+    if (increment === 'days') {
+      return [currentDate, currentDate]
+    }
+    return [
+      startOfWeek(currentDate, { weekStartsOn: 1 }),
+      addDays(startOfWeek(currentDate, { weekStartsOn: 1 }), 6),
+    ]
+  }, [currentDate, increment])
 
-  const nextWeek = () => {
-    setCurrentWeek(addWeeks(currentWeek, 1))
+  const nextIncrement = () => {
+    setCurrentDate(
+      increment === 'days' ? addDays(currentDate, 1) : addWeeks(currentDate, 1)
+    )
   }
 
-  const prevWeek = () => {
-    setCurrentWeek(subWeeks(currentWeek, 1))
+  const prevIncrement = () => {
+    setCurrentDate(
+      increment === 'days' ? subDays(currentDate, 1) : subWeeks(currentDate, 1)
+    )
   }
-
-  const startOfCurrentWeek = startOfWeek(currentWeek, { weekStartsOn: 1 })
 
   return (
     <>
       <Typography variant="h4" align="center" gutterBottom>
         {title}
       </Typography>
-      <WeeklyCalendar
-        currentWeek={currentWeek}
-        onNextWeek={nextWeek}
-        onPrevWeek={prevWeek}
+      <IncrementalCalendar
+        startOfIncrement={startOfCurrentRange}
+        endOfIncrement={endOfCurrentRange}
+        onNextIncrement={nextIncrement}
+        onPrevIncrement={prevIncrement}
       />
       <AvailabilityTable
-        startOfCurrentWeek={startOfCurrentWeek}
+        startOfRange={startOfCurrentRange}
+        endOfRange={endOfCurrentRange}
         employees={employees}
         onDeleteAvailability={onDeleteAvailability}
         onDeleteEmployee={onDeleteEmployee}

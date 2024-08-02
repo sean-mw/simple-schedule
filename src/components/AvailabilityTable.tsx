@@ -30,17 +30,17 @@ type EmployeeAvailabilityData = {
 type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
 type AvailabilityTableProps = {
-  startOfCurrentWeek: Date
+  startOfRange: Date
+  endOfRange: Date
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
   onDeleteEmployee?: (employee: Employee) => void
   onDayClick?: (day: Date) => void
 }
 
-const DAYS_IN_WEEK = 7
-
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
-  startOfCurrentWeek,
+  startOfRange,
+  endOfRange,
   employees,
   onDeleteAvailability,
   onDeleteEmployee,
@@ -88,6 +88,18 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
     )
   }
 
+  const getDaysInRange = (start: Date, end: Date) => {
+    const days = []
+    let currentDate = start
+    while (currentDate <= end) {
+      days.push(currentDate)
+      currentDate = addDays(currentDate, 1)
+    }
+    return days
+  }
+
+  const daysInRange = getDaysInRange(startOfRange, endOfRange)
+
   return (
     <>
       <TableContainer component={Paper}>
@@ -95,10 +107,8 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
           <TableHead>
             <TableRow>
               <TableCell>Employee</TableCell>
-              {Array.from({ length: DAYS_IN_WEEK }).map((_, index) => (
-                <TableCell key={index}>
-                  {format(addDays(startOfCurrentWeek, index), 'EEE, MMM d')}
-                </TableCell>
+              {daysInRange.map((day, index) => (
+                <TableCell key={index}>{format(day, 'EEE, MMM d')}</TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -106,12 +116,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
             {employees.map((employee) => (
               <TableRow key={employee.email}>
                 <TableCell>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography fontWeight="bold">
                       {employee.firstName} {employee.lastName}
                     </Typography>
@@ -128,10 +133,9 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                     )}
                   </Box>
                 </TableCell>
-                {Array.from({ length: 7 }).map((_, index) => {
-                  const date = addDays(startOfCurrentWeek, index)
+                {daysInRange.map((day, index) => {
                   const availability = employee.availabilities
-                    .filter((a) => isSameDay(a.day, date))
+                    .filter((a) => isSameDay(a.day, day))
                     .sort(
                       (a, b) => a.startTime.valueOf() - b.startTime.valueOf()
                     )
@@ -147,7 +151,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                           <Fab
                             color="primary"
                             size="small"
-                            onClick={() => onDayClick(date)}
+                            onClick={() => onDayClick(day)}
                             sx={{
                               position: 'absolute',
                               bottom: '8px',
