@@ -17,16 +17,17 @@ const IncrementalCalendar: React.FC<IncrementalCalendarProps> = ({
   onNextIncrement,
   onPrevIncrement,
 }) => {
+  const isDayIncrement = isSameDay(startOfIncrement, endOfIncrement)
+  const dateFormat = isDayIncrement ? 'EEE, MMMM d, yyyy' : 'MMMM d, yyyy'
+  const rangeText = `${format(startOfIncrement, dateFormat)}${!isDayIncrement ? ` - ${format(endOfIncrement, dateFormat)}` : ''}`
+
   return (
     <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
       <IconButton onClick={onPrevIncrement} color="primary">
         <ArrowBackIosIcon />
       </IconButton>
       <Typography variant="h6" color="textSecondary" mx={2}>
-        {format(startOfIncrement, 'MMMM d, yyyy')}
-        {!isSameDay(startOfIncrement, endOfIncrement) && (
-          <>- {format(endOfIncrement, 'MMMM d, yyyy')}</>
-        )}
+        {rangeText}
       </Typography>
       <IconButton onClick={onNextIncrement} color="primary">
         <ArrowForwardIosIcon />
