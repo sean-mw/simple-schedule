@@ -58,6 +58,22 @@ export default function Dashboard() {
     setEmployees([...(employees ?? []), { ...employee, availabilities: [] }])
   }
 
+  const onEditEmployee = (current: Employee, updated: Employee | undefined) => {
+    if (!updated) {
+      // Delete employee
+      setEmployees(employees?.filter((e) => e.email !== current.email))
+    } else {
+      // Update employee
+      setEmployees(
+        employees?.map((e) =>
+          e.email === current.email
+            ? { ...updated, availabilities: e.availabilities }
+            : e
+        )
+      )
+    }
+  }
+
   return (
     <Box>
       <Navbar
@@ -86,9 +102,7 @@ export default function Dashboard() {
         <EmployeeAvailability
           title={'Employee Availability'}
           employees={employees ?? []}
-          onDeleteEmployee={(employee: Employee) => {
-            setEmployees(employees?.filter((e) => e.email !== employee.email))
-          }}
+          onEditEmployee={onEditEmployee}
         />
       </Box>
     </Box>

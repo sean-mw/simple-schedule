@@ -14,6 +14,7 @@ type ModalProps = {
   subtitle?: string
   errorMessage?: string
   onClose: () => void
+  hidden?: boolean
   children: React.ReactNode
 }
 
@@ -22,6 +23,7 @@ const Modal: React.FC<ModalProps> = ({
   subtitle,
   errorMessage,
   onClose,
+  hidden,
   children,
 }) => {
   useEffect(() => {
@@ -37,6 +39,8 @@ const Modal: React.FC<ModalProps> = ({
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [onClose])
+
+  if (hidden) return null
 
   return (
     <Dialog

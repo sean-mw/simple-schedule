@@ -24,6 +24,11 @@ export default async function handler(
         return res.status(401).json({ error: 'Unauthorized' })
       }
       return deleteEmployee(req, res, session.user.id)
+    case 'PUT':
+      if (!session?.user) {
+        return res.status(401).json({ error: 'Unauthorized' })
+      }
+      return updateEmployee(req, res, session.user.id)
     default:
       return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -52,6 +57,50 @@ async function createEmployee(
     return res.status(201).json({ message: 'Employee created' })
   } catch (error) {
     return res.status(500).json({ error: 'Error creating employee' })
+  }
+}
+
+async function updateEmployee(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  userId: string
+) {
+  const {
+    current: { email, firstName, lastName },
+    updated: {
+      email: updatedEmail,
+      firstName: updatedFirstName,
+      lastName: updatedLastName,
+    },
+  } = req.body
+
+  if (
+    !email ||
+    !firstName ||
+    !lastName ||
+    !updatedEmail ||
+    !updatedFirstName ||
+    !updatedLastName
+  ) {
+    return res.status(400).json({ error: 'Missing required fields' })
+  }
+
+  try {
+    await prisma.employee.update({
+      where: {
+        email,
+        userId,
+      },
+      data: {
+        email: updatedEmail,
+        firstName: updatedFirstName,
+        lastName: updatedLastName,
+      },
+    })
+    return res.status(200).json({ message: 'Employee updated' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'Error updating employee' })
   }
 }
 

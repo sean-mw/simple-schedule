@@ -14,13 +14,13 @@ import {
   Fab,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
 import { Employee } from './EmployeeModal'
 import axios from 'axios'
 import { useTheme } from '@mui/material/styles'
 import { Availability } from '@prisma/client'
-import Modal from './Modal'
-import Form from './Form'
+import EditEmployeeModal from './EditEmployeeModal'
 
 type EmployeeAvailabilityData = {
   email: string
@@ -34,7 +34,7 @@ type AvailabilityTableProps = {
   endOfRange: Date
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
-  onDeleteEmployee?: (employee: Employee) => void
+  onEditEmployee?: (current: Employee, updated: Employee | undefined) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -43,14 +43,11 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   endOfRange,
   employees,
   onDeleteAvailability,
-  onDeleteEmployee,
+  onEditEmployee,
   onDayClick,
 }) => {
   const theme = useTheme()
-  const [employeeToDelete, setEmployeeToDelete] = useState<Employee>()
-  const [status, setStatus] = useState<
-    'idle' | 'loading' | 'success' | 'error'
-  >('idle')
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee>()
 
   const renderAvailabilityBlock = (availability: Availability) => {
     const startHour = format(availability.startTime, 'h:mm a')
@@ -77,7 +74,9 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
             size="small"
             color="error"
             onClick={async () => {
-              await axios.delete(`/api/availabilities`, { data: availability })
+              await axios.delete(`/api/availabilities`, {
+                data: availability,
+              })
               onDeleteAvailability(availability)
             }}
           >
@@ -120,15 +119,15 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                     <Typography fontWeight="bold">
                       {employee.firstName} {employee.lastName}
                     </Typography>
-                    {onDeleteEmployee && (
+                    {onEditEmployee && (
                       <IconButton
                         size="small"
-                        color="error"
+                        color="secondary"
                         onClick={async () => {
-                          setEmployeeToDelete(employee)
+                          setEmployeeToEdit(employee)
                         }}
                       >
-                        <DeleteIcon fontSize="small" />
+                        <EditIcon fontSize="small" />
                       </IconButton>
                     )}
                   </Box>
@@ -171,42 +170,12 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
           </TableBody>
         </Table>
       </TableContainer>
-      {onDeleteEmployee && employeeToDelete && (
-        <Modal
-          title="Confirm Deletion"
-          onClose={() => setEmployeeToDelete(undefined)}
-        >
-          <Form
-            onSubmit={async (e) => {
-              e.preventDefault()
-              setStatus('loading')
-              await axios.delete(`/api/employees`, {
-                params: { email: employeeToDelete.email },
-              })
-              setStatus('success')
-              setTimeout(() => {
-                onDeleteEmployee(employeeToDelete)
-                setEmployeeToDelete(undefined)
-                setStatus('idle')
-              }, 500)
-            }}
-            status={status}
-            submitButtonText="Delete Employee"
-          >
-            <Box mb={2}>
-              <Typography>
-                Are you sure you want to delete{' '}
-                <Typography component="span" fontWeight="bold">
-                  {employeeToDelete.firstName} {employeeToDelete.lastName}
-                </Typography>
-                ?
-              </Typography>
-              <Typography color="error">
-                This action cannot be undone.
-              </Typography>
-            </Box>
-          </Form>
-        </Modal>
+      {onEditEmployee && employeeToEdit && (
+        <EditEmployeeModal
+          onClose={() => setEmployeeToEdit(undefined)}
+          employeeToEdit={employeeToEdit}
+          onEditEmployee={onEditEmployee}
+        />
       )}
     </>
   )
