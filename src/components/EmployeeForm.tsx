@@ -19,6 +19,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const [firstName, setFirstName] = useState(employee?.firstName || '')
   const [lastName, setLastName] = useState(employee?.lastName || '')
   const [email, setEmail] = useState(employee?.email || '')
+  const [employeeNumber, setEmployeeNumber] = useState(employee?.employeeNumber)
 
   return (
     <Form
@@ -28,6 +29,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           firstName,
           lastName,
           email,
+          employeeNumber,
         })
       }}
       status={status}
@@ -58,6 +60,14 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+        <TextField
+          fullWidth
+          margin="dense"
+          label="Employee Number (optional)"
+          type="number"
+          value={employeeNumber}
+          onChange={(e) => setEmployeeNumber(Number.parseInt(e.target.value))}
         />
       </Box>
     </Form>

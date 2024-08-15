@@ -106,6 +106,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
           <TableHead>
             <TableRow>
               <TableCell>Employee</TableCell>
+              <TableCell>Employee Number</TableCell>
               {daysInRange.map((day, index) => (
                 <TableCell key={index}>{format(day, 'EEE, MMM d')}</TableCell>
               ))}
@@ -132,6 +133,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                     )}
                   </Box>
                 </TableCell>
+                <TableCell>{employee.employeeNumber}</TableCell>
                 {daysInRange.map((day, index) => {
                   const availability = employee.availabilities
                     .filter((a) => isSameDay(a.day, day))

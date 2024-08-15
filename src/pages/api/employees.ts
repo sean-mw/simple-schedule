@@ -39,7 +39,7 @@ async function createEmployee(
   res: NextApiResponse,
   userId: string
 ) {
-  const { email, firstName, lastName } = req.body
+  const { email, firstName, lastName, employeeNumber } = req.body
 
   if (!email || !firstName || !lastName) {
     return res.status(400).json({ error: 'Missing required fields' })
@@ -52,6 +52,7 @@ async function createEmployee(
         firstName,
         lastName,
         userId,
+        employeeNumber,
       },
     })
     return res.status(201).json({ message: 'Employee created' })
@@ -66,22 +67,16 @@ async function updateEmployee(
   userId: string
 ) {
   const {
-    current: { email, firstName, lastName },
+    current: { email },
     updated: {
       email: updatedEmail,
       firstName: updatedFirstName,
       lastName: updatedLastName,
+      employeeNumber: updatedEmployeeNumber, // optional
     },
   } = req.body
 
-  if (
-    !email ||
-    !firstName ||
-    !lastName ||
-    !updatedEmail ||
-    !updatedFirstName ||
-    !updatedLastName
-  ) {
+  if (!email || !updatedEmail || !updatedFirstName || !updatedLastName) {
     return res.status(400).json({ error: 'Missing required fields' })
   }
 
@@ -95,6 +90,7 @@ async function updateEmployee(
         email: updatedEmail,
         firstName: updatedFirstName,
         lastName: updatedLastName,
+        employeeNumber: updatedEmployeeNumber,
       },
     })
     return res.status(200).json({ message: 'Employee updated' })
@@ -131,6 +127,7 @@ async function getEmployees(req: NextApiRequest, res: NextApiResponse) {
     const employees = await prisma.employee.findMany({ where })
     return res.status(200).json(employees)
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ error: 'Error fetching employees' })
   }
 }

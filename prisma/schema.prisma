@@ -25,11 +25,12 @@ model User {
 }
 
 model Employee {
-    id        Int    @id @default(autoincrement())
-    email     String @unique
-    firstName String
-    lastName  String
-    userId    String
+    id             Int    @id @default(autoincrement())
+    email          String @unique
+    firstName      String
+    lastName       String
+    employeeNumber Int?   @unique
+    userId         String
 
     user User @relation(fields: [userId], references: [id])
 }

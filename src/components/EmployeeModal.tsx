@@ -7,6 +7,7 @@ export type Employee = {
   firstName: string
   lastName: string
   email: string
+  employeeNumber?: number
 }
 
 type EmployeeModalProps = {
@@ -28,7 +29,11 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   const onSubmit = async (employee: Employee) => {
     setErrorMessage('')
 
-    const existingEmployee = employees?.find((e) => e.email === employee.email)
+    const existingEmployee = employees?.find(
+      (e) =>
+        e.email === employee.email ||
+        (e.employeeNumber && e.employeeNumber === employee.employeeNumber)
+    )
     if (existingEmployee) {
       setStatus('error')
       return setErrorMessage('Employee already exists')
