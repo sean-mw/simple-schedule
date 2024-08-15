@@ -2,8 +2,8 @@ import { FormEvent, useState } from 'react'
 import Form from './Form'
 import Modal from './Modal'
 import axios from 'axios'
-import { Employee } from './EmployeeModal'
 import { Box, Typography } from '@mui/material'
+import { Employee } from '@prisma/client'
 
 type DeleteEmployeeModalProps = {
   employeeToDelete: Employee

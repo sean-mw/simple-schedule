@@ -2,13 +2,7 @@ import React, { useState } from 'react'
 import Modal from './Modal'
 import axios from 'axios'
 import EmployeeForm from './EmployeeForm'
-
-export type Employee = {
-  firstName: string
-  lastName: string
-  email: string
-  employeeNumber?: number
-}
+import { Employee } from '@prisma/client'
 
 type EmployeeModalProps = {
   onClose: () => void
@@ -26,7 +20,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const onSubmit = async (employee: Employee) => {
+  const onSubmit = async (employee: Omit<Employee, 'id' | 'userId'>) => {
     setErrorMessage('')
 
     const existingEmployee = employees?.find(
@@ -41,12 +35,12 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
     setStatus('loading')
     try {
-      await axios.post('/api/employees', employee)
+      const employeeReponse = await axios.post('/api/employees', employee)
       setStatus('success')
 
       setTimeout(() => {
         setStatus('idle')
-        onAddEmployee(employee)
+        onAddEmployee(employeeReponse.data)
         onClose()
       }, 500)
     } catch (error) {

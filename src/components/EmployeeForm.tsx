@@ -1,10 +1,10 @@
 import { Box, TextField } from '@mui/material'
 import Form from './Form'
 import { useState } from 'react'
-import { Employee } from './EmployeeModal'
+import { Employee } from '@prisma/client'
 
 type EmployeeFormProps = {
-  onSubmit: (employee: Employee) => void
+  onSubmit: (employee: Omit<Employee, 'id' | 'userId'>) => void
   status: 'idle' | 'loading' | 'success' | 'error'
   employee?: Employee
   submitButtonText?: string
@@ -19,7 +19,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
   const [firstName, setFirstName] = useState(employee?.firstName || '')
   const [lastName, setLastName] = useState(employee?.lastName || '')
   const [email, setEmail] = useState(employee?.email || '')
-  const [employeeNumber, setEmployeeNumber] = useState(employee?.employeeNumber)
+  const [employeeNumber, setEmployeeNumber] = useState(
+    employee?.employeeNumber ?? null
+  )
 
   return (
     <Form

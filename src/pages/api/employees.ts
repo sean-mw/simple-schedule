@@ -46,7 +46,7 @@ async function createEmployee(
   }
 
   try {
-    await prisma.employee.create({
+    const employee = await prisma.employee.create({
       data: {
         email,
         firstName,
@@ -55,7 +55,7 @@ async function createEmployee(
         employeeNumber,
       },
     })
-    return res.status(201).json({ message: 'Employee created' })
+    return res.status(201).json(employee)
   } catch (error) {
     return res.status(500).json({ error: 'Error creating employee' })
   }
@@ -81,7 +81,7 @@ async function updateEmployee(
   }
 
   try {
-    await prisma.employee.update({
+    const employee = await prisma.employee.update({
       where: {
         email,
         userId,
@@ -93,7 +93,7 @@ async function updateEmployee(
         employeeNumber: updatedEmployeeNumber,
       },
     })
-    return res.status(200).json({ message: 'Employee updated' })
+    return res.status(200).json(employee)
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: 'Error updating employee' })

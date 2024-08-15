@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import EmployeeModal, { Employee } from '@/components/EmployeeModal'
+import EmployeeModal from '@/components/EmployeeModal'
 import RequestAvailabilityModal from '@/components/RequestAvailabilityModal'
 import { signIn, useSession } from 'next-auth/react'
 import Spinner from '@/components/Spinner'
@@ -7,7 +7,7 @@ import { Box, Alert } from '@mui/material'
 import Navbar from '@/components/Navbar'
 import getEmployeeAvailability from '@/lib/get-employee-availability'
 import EmployeeAvailability from '@/components/EmployeeAvailability'
-import { Availability } from '@prisma/client'
+import { Availability, Employee } from '@prisma/client'
 
 export type EmployeeAvailabilityData = {
   email: string

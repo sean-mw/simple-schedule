@@ -16,10 +16,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
-import { Employee } from './EmployeeModal'
 import axios from 'axios'
 import { useTheme } from '@mui/material/styles'
-import { Availability } from '@prisma/client'
+import { Availability, Employee } from '@prisma/client'
 import EditEmployeeModal from './EditEmployeeModal'
 
 type EmployeeAvailabilityData = {

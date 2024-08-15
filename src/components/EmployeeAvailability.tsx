@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { addDays, addWeeks, subWeeks, subDays, startOfWeek } from 'date-fns'
 import { Typography, useMediaQuery, useTheme } from '@mui/material'
-import { Employee } from './EmployeeModal'
 import IncrementalCalendar from './IncrementalCalendar'
 import AvailabilityTable from './AvailabilityTable'
-import { Availability } from '@prisma/client'
+import { Availability, Employee } from '@prisma/client'
 
 export type EmployeeAvailabilityData = {
   email: string

@@ -9,10 +9,10 @@ import {
   ListItemSecondaryAction,
 } from '@mui/material'
 import Modal from './Modal'
-import { Employee } from './EmployeeModal'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Form from './Form'
+import { Employee } from '@prisma/client'
 
 interface RequestAvailabilityModalProps {
   employees: Employee[]

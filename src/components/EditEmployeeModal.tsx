@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import DeleteEmployeeModal from './DeleteEmployeeModal'
-import { Employee } from './EmployeeModal'
 import Modal from './Modal'
 import EmployeeForm from './EmployeeForm'
 import axios from 'axios'
 import { Button } from '@mui/material'
+import { Employee } from '@prisma/client'
 
 type EditEmployeeModalProps = {
   employeeToEdit: Employee
@@ -23,16 +23,16 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
   >('idle')
   const hideModal = useMemo(() => showDeleteModal, [showDeleteModal])
 
-  const onSubmit = async (employee: Employee) => {
+  const onSubmit = async (employee: Omit<Employee, 'id' | 'userId'>) => {
     setStatus('loading')
-    await axios.put(`/api/employees`, {
+    const employeeResponse = await axios.put(`/api/employees`, {
       current: employeeToEdit,
       updated: employee,
     })
     setStatus('success')
     setTimeout(() => {
       setStatus('idle')
-      onEditEmployee(employeeToEdit, employee)
+      onEditEmployee(employeeToEdit, employeeResponse.data)
       onClose()
     }, 500)
   }
