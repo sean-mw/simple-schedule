@@ -11,13 +11,11 @@ import {
   Box,
   IconButton,
   Typography,
-  Fab,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
-import AddIcon from '@mui/icons-material/Add'
 import { Availability, Employee } from '@prisma/client'
 import EditEmployeeModal from './EditEmployeeModal'
-import AvailabilityBlock from './AvailabilityBlock'
+import AvailabilityTableCell from './AvailabilityTableCell'
 
 type EmployeeAvailabilityData = {
   email: string
@@ -92,43 +90,20 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                   </Box>
                 </TableCell>
                 <TableCell>{employee.employeeNumber}</TableCell>
-                {daysInRange.map((day, index) => {
+                {daysInRange.map((day) => {
                   const availability = employee.availabilities
                     .filter((a) => isSameDay(a.day, day))
                     .sort(
                       (a, b) => a.startTime.valueOf() - b.startTime.valueOf()
                     )
-
                   return (
-                    <TableCell key={index} sx={{ position: 'relative' }}>
-                      <Box display="flex" flexDirection="column" gap={1}>
-                        {availability.map((a) => (
-                          <AvailabilityBlock
-                            key={a.id}
-                            availability={a}
-                            onDeleteAvailability={onDeleteAvailability}
-                          />
-                        ))}
-                      </Box>
-                      {onDayClick && (
-                        <>
-                          <Box sx={{ height: '40px' }}></Box>
-                          <Fab
-                            color="primary"
-                            size="small"
-                            onClick={() => onDayClick(day)}
-                            sx={{
-                              position: 'absolute',
-                              bottom: '8px',
-                              right: '8px',
-                              zIndex: 1,
-                            }}
-                          >
-                            <AddIcon />
-                          </Fab>
-                        </>
-                      )}
-                    </TableCell>
+                    <AvailabilityTableCell
+                      key={`${employee.email}-${day.toISOString()}`}
+                      day={day}
+                      availability={availability}
+                      onDeleteAvailability={onDeleteAvailability}
+                      onDayClick={onDayClick}
+                    />
                   )
                 })}
               </TableRow>
