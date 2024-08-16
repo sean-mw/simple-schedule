@@ -57,6 +57,7 @@ async function createEmployee(
     })
     return res.status(201).json(employee)
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ error: 'Error creating employee' })
   }
 }
@@ -152,6 +153,7 @@ async function deleteEmployee(
     })
     return res.status(200).json({ message: 'Employee deleted' })
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: 'Error deleting employee' })
   }
 }

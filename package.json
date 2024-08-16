@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:start": "docker-compose -f prisma/compose.yml up -d && sleep 5 && prisma db push",
+    "db:stop": "docker-compose -f prisma/compose.yml down",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "ts-node src/scripts/db-deploy.ts"
   },
   "dependencies": {
     "@date-io/date-fns": "^3.0.0",
@@ -40,11 +44,13 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",
     "prisma": "^5.16.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
