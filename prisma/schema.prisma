@@ -26,13 +26,16 @@ model User {
 
 model Employee {
     id             Int    @id @default(autoincrement())
-    email          String @unique
+    email          String
     firstName      String
     lastName       String
-    employeeNumber Int?   @unique
+    employeeNumber Int?
     userId         String
 
     user User @relation(fields: [userId], references: [id])
+
+    @@unique([email, userId])
+    @@unique([employeeNumber, userId])
 }
 
 model Availability {

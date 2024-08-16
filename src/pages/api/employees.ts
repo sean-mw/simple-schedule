@@ -84,8 +84,7 @@ async function updateEmployee(
   try {
     const employee = await prisma.employee.update({
       where: {
-        email,
-        userId,
+        email_userId: { email, userId },
       },
       data: {
         email: updatedEmail,
@@ -147,8 +146,7 @@ async function deleteEmployee(
   try {
     await prisma.employee.delete({
       where: {
-        userId,
-        email: email as string,
+        email_userId: { userId, email: email as string },
       },
     })
     return res.status(200).json({ message: 'Employee deleted' })
