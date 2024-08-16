@@ -13,13 +13,11 @@ import {
   Typography,
   Fab,
 } from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
-import axios from 'axios'
-import { useTheme } from '@mui/material/styles'
 import { Availability, Employee } from '@prisma/client'
 import EditEmployeeModal from './EditEmployeeModal'
+import AvailabilityBlock from './AvailabilityBlock'
 
 type EmployeeAvailabilityData = {
   email: string
@@ -45,46 +43,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   onEditEmployee,
   onDayClick,
 }) => {
-  const theme = useTheme()
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee>()
-
-  const renderAvailabilityBlock = (availability: Availability) => {
-    const startHour = format(availability.startTime, 'h:mm a')
-    const endHour = format(availability.endTime, 'h:mm a')
-    return (
-      <Box
-        key={availability.id}
-        sx={{
-          backgroundColor: theme.palette.success.light,
-          borderRadius: '4px',
-          padding: '4px 6px',
-          fontSize: '12px',
-          marginBottom: '5px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span>
-          {startHour} - {endHour}
-        </span>
-        {onDeleteAvailability && (
-          <IconButton
-            size="small"
-            color="error"
-            onClick={async () => {
-              await axios.delete(`/api/availabilities`, {
-                data: availability,
-              })
-              onDeleteAvailability(availability)
-            }}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        )}
-      </Box>
-    )
-  }
 
   const getDaysInRange = (start: Date, end: Date) => {
     const days = []
@@ -143,7 +102,13 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                   return (
                     <TableCell key={index} sx={{ position: 'relative' }}>
                       <Box display="flex" flexDirection="column" gap={1}>
-                        {availability.map((a) => renderAvailabilityBlock(a))}
+                        {availability.map((a) => (
+                          <AvailabilityBlock
+                            key={a.id}
+                            availability={a}
+                            onDeleteAvailability={onDeleteAvailability}
+                          />
+                        ))}
                       </Box>
                       {onDayClick && (
                         <>
