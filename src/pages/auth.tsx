@@ -251,7 +251,7 @@ const Auth = ({ providers }: AuthProps) => {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const baseUrl =
-    process.env.NEXTAUTH_URL || 'https://availability-schedule.vercel.app'
+    process.env.NEXTAUTH_URL || 'https://simple-schedule.vercel.app'
 
   try {
     const res = await fetch(`${baseUrl}/api/auth/providers`)
