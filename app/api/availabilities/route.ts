@@ -1,31 +1,16 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import getClient from '../../lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from './auth/[...nextauth]'
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
+import prisma from '@/lib/prisma'
+import { authOptions } from '@/lib/nextauth'
 
-const prisma = getClient()
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  switch (req.method) {
-    case 'POST':
-      return createAvailability(req, res)
-    case 'GET':
-      return getAvailabilities(req, res)
-    case 'DELETE':
-      return deleteAvailability(req, res)
-    default:
-      return res.status(405).json({ error: 'Method not allowed' })
-  }
-}
-
-async function createAvailability(req: NextApiRequest, res: NextApiResponse) {
-  const { token, day, startTime, endTime } = req.body
+export async function POST(req: NextRequest) {
+  const { token, day, startTime, endTime } = await req.json()
 
   if (!token || !day || !startTime || !endTime) {
-    return res.status(400).json({ error: 'Missing required fields' })
+    return NextResponse.json(
+      { error: 'Missing required fields' },
+      { status: 400 }
+    )
   }
 
   try {
@@ -37,18 +22,23 @@ async function createAvailability(req: NextApiRequest, res: NextApiResponse) {
         token,
       },
     })
-    return res
-      .status(201)
-      .json({ message: 'Availability created', availability })
+    return NextResponse.json(
+      { message: 'Availability created', availability },
+      { status: 201 }
+    )
   } catch (error) {
-    return res.status(500).json({ error: 'Error creating availability' })
+    return NextResponse.json(
+      { error: 'Error creating availability' },
+      { status: 500 }
+    )
   }
 }
 
-async function getAvailabilities(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { email } = req.query
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const email = searchParams.get('email')
 
+  try {
     if (email) {
       // get availabilities for a specific employee
       const availabilityRequests = await prisma.availabilityRequest.findMany({
@@ -62,13 +52,12 @@ async function getAvailabilities(req: NextApiRequest, res: NextApiResponse) {
         where: { token: { in: tokens } },
       })
 
-      return res.status(200).json([{ email, availabilities }])
+      return NextResponse.json([{ email, availabilities }], { status: 200 })
     } else {
       // get availabilities for all employees
-
-      const session = await getServerSession(req, res, authOptions)
+      const session = await getServerSession(authOptions)
       if (!session?.user) {
-        return res.status(401).json({ error: 'Unauthorized' })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
 
       const employees = await prisma.employee.findMany({
@@ -94,21 +83,21 @@ async function getAvailabilities(req: NextApiRequest, res: NextApiResponse) {
         availabilities: availabilities.filter((a) => a.token === ar.token),
       }))
 
-      return res.status(200).json(response)
+      return NextResponse.json(response, { status: 200 })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error fetching availabilities' })
+    return NextResponse.json(
+      { error: 'Error fetching availabilities' },
+      { status: 500 }
+    )
   }
 }
 
-const deleteAvailability = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
-  const { id, token } = req.body
+export async function DELETE(req: NextRequest) {
+  const { id, token } = await req.json()
 
   if (!id || !token) {
-    return res.status(400).json({ error: 'Missing id' })
+    return NextResponse.json({ error: 'Missing id' }, { status: 400 })
   }
 
   try {
@@ -118,8 +107,14 @@ const deleteAvailability = async (
         token: token as string,
       },
     })
-    return res.status(200).json({ message: 'Availability deleted' })
+    return NextResponse.json(
+      { message: 'Availability deleted' },
+      { status: 200 }
+    )
   } catch (error) {
-    return res.status(500).json({ error: 'Error deleting availability' })
+    return NextResponse.json(
+      { error: 'Error deleting availability' },
+      { status: 500 }
+    )
   }
 }

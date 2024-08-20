@@ -1,5 +1,6 @@
+'use client'
+
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 import EmployeeAvailability, {
   EmployeeWithAvailability,
 } from '@/components/EmployeeAvailability'
@@ -8,14 +9,11 @@ import { Box, Typography } from '@mui/material'
 import Navbar from '@/components/Navbar'
 import getEmployeeAvailability from '@/lib/get-employee-availability'
 import { type Availability } from '@prisma/client'
-
-type QueryParams = {
-  token?: string
-}
+import { useSearchParams } from 'next/navigation'
 
 export default function Availability() {
-  const router = useRouter()
-  const { token } = router.query as QueryParams
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
   const [employee, setEmployee] = useState<EmployeeWithAvailability>()
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false)
   const [clickedDay, setClickedDay] = useState<Date | null>(null)

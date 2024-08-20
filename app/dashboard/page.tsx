@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import EmployeeModal from '@/components/EmployeeModal'
 import RequestAvailabilityModal from '@/components/RequestAvailabilityModal'

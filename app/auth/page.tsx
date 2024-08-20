@@ -1,6 +1,7 @@
-import { signIn, ClientSafeProvider } from 'next-auth/react'
-import { GetServerSideProps } from 'next'
-import { useState } from 'react'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { signIn, ClientSafeProvider, getProviders } from 'next-auth/react'
 import {
   Avatar,
   Box,
@@ -18,15 +19,29 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Navbar from '@/components/Navbar'
 
-interface AuthProps {
-  providers: Record<string, ClientSafeProvider> | null
-}
-
-const Auth = ({ providers }: AuthProps) => {
+const Auth = () => {
+  const [providers, setProviders] = useState<Record<
+    string,
+    ClientSafeProvider
+  > | null>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const res = await getProviders()
+        setProviders(res)
+      } catch (error) {
+        console.error('Error fetching providers:', error)
+        setProviders(null)
+      }
+    }
+
+    fetchProviders()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -247,25 +262,6 @@ const Auth = ({ providers }: AuthProps) => {
       </Container>
     </Box>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const baseUrl =
-    process.env.NEXTAUTH_URL || 'https://simple-schedule.vercel.app'
-
-  try {
-    const res = await fetch(`${baseUrl}/api/auth/providers`)
-    const providers = await res.json()
-
-    return {
-      props: { providers },
-    }
-  } catch (error) {
-    console.error('Error fetching providers in getServerSideProps:', error)
-    return {
-      props: { providers: null },
-    }
-  }
 }
 
 export default Auth
