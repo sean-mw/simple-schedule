@@ -1,67 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
-import { getTransporter } from '@/lib/nodemailer'
+import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getTransporter } from '@/lib/nodemailer'
 
-export async function POST(req: NextRequest) {
-  const { emails } = await req.json()
+export async function POST(request: Request) {
+  const userId = request.headers.get('x-user-id')
 
-  if (!emails || !Array.isArray(emails) || emails.length === 0) {
-    return NextResponse.json(
-      { error: 'Missing/invalid fields.' },
-      { status: 400 }
-    )
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    for (const email of emails) {
-      const token = uuidv4()
+    const body = await request.json()
+    const { employeeId } = body
 
-      await prisma.availabilityRequest.create({
-        data: { email, token },
-      })
+    const employee = await prisma.employee.findUnique({
+      where: { id: employeeId, userId },
+    })
 
-      const link = `${process.env.NEXT_PUBLIC_URL}/availability?token=${token}`
-
-      const transporter = getTransporter()
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Select Your Availability',
-        text: `Please select your availability by clicking the following link:\n\n${link}`,
-      })
+    if (!employee) {
+      return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
     }
 
-    return NextResponse.json(
-      { message: 'Availability request emails sent successfully' },
-      { status: 200 }
-    )
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Error creating availability requests' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const token = searchParams.get('token')
-
-  if (!token) {
-    return NextResponse.json({ error: 'Missing token' }, { status: 400 })
-  }
-
-  try {
-    const availabilityRequests = await prisma.availabilityRequest.findMany({
-      where: {
-        token: token as string,
+    const newAvailabilityRequest = await prisma.availabilityRequest.create({
+      data: {
+        employeeId,
       },
     })
-    return NextResponse.json(availabilityRequests, { status: 200 })
+
+    const link = `${process.env.NEXT_PUBLIC_URL}/availability?token=${newAvailabilityRequest.id}`
+
+    const transporter = getTransporter()
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: employee.email,
+      subject: 'Select Your Availability',
+      text: `Please select your availability by clicking the following link:\n\n${link}`,
+    })
+
+    return NextResponse.json(newAvailabilityRequest, { status: 201 })
   } catch (error) {
     return NextResponse.json(
-      { error: 'Error fetching availability requests' },
+      { error: 'Failed to create availability request' },
       { status: 500 }
     )
   }

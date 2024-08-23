@@ -7,7 +7,7 @@ import EmployeeAvailability, {
 import AvailabilityModal from '@/components/AvailabilityModal'
 import { Box, Typography } from '@mui/material'
 import Navbar from '@/components/Navbar'
-import getEmployeeAvailability from '@/lib/get-employee-availability'
+import { getSingleEmployeeAvailability } from '@/lib/get-employee-availability'
 import { type Availability } from '@prisma/client'
 import { useSearchParams } from 'next/navigation'
 
@@ -23,8 +23,8 @@ export default function Availability() {
 
     const fetchEmployeeAvailability = async () => {
       try {
-        const employees = await getEmployeeAvailability(token)
-        setEmployee(employees[0])
+        const employee = await getSingleEmployeeAvailability(token)
+        setEmployee(employee)
       } catch (error) {
         console.error('Error fetching employee:', error)
       }
@@ -57,7 +57,7 @@ export default function Availability() {
             if (!employee) return
             setEmployee({
               ...employee,
-              availabilities: employee.availabilities.filter(
+              availability: employee.availability.filter(
                 (a) => a.id !== availability.id
               ),
             })
@@ -72,7 +72,7 @@ export default function Availability() {
             onSuccess={(availability: Availability) => {
               setEmployee({
                 ...employee,
-                availabilities: [...employee.availabilities, availability],
+                availability: [...employee.availability, availability],
               })
             }}
           />

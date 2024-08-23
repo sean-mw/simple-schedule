@@ -1,7 +1,6 @@
 import { FormEvent, useState } from 'react'
 import Form from './Form'
 import Modal from './Modal'
-import axios from 'axios'
 import { Box, Typography } from '@mui/material'
 import { Employee } from '@prisma/client'
 
@@ -23,8 +22,8 @@ const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setStatus('loading')
-    await axios.delete(`/api/employees`, {
-      params: { email: employeeToDelete.email },
+    await fetch(`/api/employees/${employeeToDelete.id}`, {
+      method: 'DELETE',
     })
     setStatus('success')
     setTimeout(() => {

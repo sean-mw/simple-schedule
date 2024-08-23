@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import DeleteEmployeeModal from './DeleteEmployeeModal'
 import Modal from './Modal'
 import EmployeeForm from './EmployeeForm'
-import axios from 'axios'
 import { Button } from '@mui/material'
 import { Employee } from '@prisma/client'
 
@@ -25,14 +24,18 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
   const onSubmit = async (employee: Omit<Employee, 'id' | 'userId'>) => {
     setStatus('loading')
-    const employeeResponse = await axios.put(`/api/employees`, {
-      current: employeeToEdit,
-      updated: employee,
-    })
+    const employeeResponse = await fetch(
+      `/api/employees/${employeeToEdit.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(employee),
+      }
+    )
+    const updatedEmployee = await employeeResponse.json()
     setStatus('success')
     setTimeout(() => {
       setStatus('idle')
-      onEditEmployee(employeeToEdit, employeeResponse.data)
+      onEditEmployee(employeeToEdit, updatedEmployee)
       onClose()
     }, 500)
   }

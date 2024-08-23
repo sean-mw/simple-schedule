@@ -7,7 +7,7 @@ import { Availability, Employee } from '@prisma/client'
 
 export type EmployeeAvailabilityData = {
   email: string
-  availabilities: Availability[]
+  availability: Availability[]
 }
 
 export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData

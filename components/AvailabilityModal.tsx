@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react'
 import Modal from './Modal'
-import axios from 'axios'
 import { Box, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
 import { EmployeeWithAvailability } from './EmployeeAvailability'
 import { isSameDay } from 'date-fns'
@@ -56,10 +55,10 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
   const [errorMessage, setErrorMessage] = useState('')
 
   const currentAvailabilities = useMemo(() => {
-    return employee.availabilities.filter((availability) =>
+    return employee.availability.filter((availability) =>
       isSameDay(availability.day, date)
     )
-  }, [date, employee.availabilities])
+  }, [date, employee.availability])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,7 +89,7 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
       }
     }
 
-    const availability = {
+    const availabilityData = {
       token,
       day: date,
       startTime: start,
@@ -98,13 +97,20 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
     }
 
     try {
-      const response = await axios.post('/api/availabilities', availability)
+      const response = await fetch(
+        `/api/availability-requests/${token}/availability`,
+        {
+          method: 'POST',
+          body: JSON.stringify(availabilityData),
+        }
+      )
+      const createdAvailability = await response.json()
       setStatus('success')
       setTimeout(() => {
         setStatus('idle')
         onClose()
       }, 500)
-      onSuccess(response.data.availability)
+      onSuccess(createdAvailability)
     } catch (error) {
       setStatus('error')
       return setErrorMessage('Failed to submit availability. Please try again.')

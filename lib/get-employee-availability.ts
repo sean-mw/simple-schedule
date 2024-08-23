@@ -1,42 +1,59 @@
 import { EmployeeWithAvailability } from '@/components/EmployeeAvailability'
 import { Availability, Employee } from '@prisma/client'
-import axios, { AxiosResponse } from 'axios'
 
-async function getEmployeeAvailability(
-  token?: string
-): Promise<EmployeeWithAvailability[]> {
-  const employyeesParams = token ? { token } : {}
-  const employeesResponse: AxiosResponse<Employee[]> = await axios.get(
-    '/api/employees',
-    {
-      params: employyeesParams,
-    }
-  )
-
-  const availabilitiesParams = token
-    ? { email: employeesResponse.data[0].email }
-    : {}
-  const availabilitiesResponse: AxiosResponse<
-    { email: string; availabilities: Availability[] }[]
-  > = await axios.get('/api/availabilities', {
-    params: availabilitiesParams,
+export async function getAllEmployeeAvailability(): Promise<
+  EmployeeWithAvailability[]
+> {
+  const employeesResponse = await fetch(`/api/employees`, {
+    method: 'GET',
   })
 
-  const employeesData = employeesResponse.data.map((employee) => ({
-    ...employee,
-    availabilities: availabilitiesResponse.data
-      .filter((ar) => ar.email === employee.email)
-      .flatMap((ar) => {
-        return ar.availabilities.map((availability) => ({
-          ...availability,
-          day: new Date(availability.day),
-          startTime: new Date(availability.startTime),
-          endTime: new Date(availability.endTime),
-        }))
-      }),
-  }))
+  const employees: Employee[] = await employeesResponse.json()
 
-  return employeesData
+  const employeesWithAvailabilityPromises = employees.map(async (employee) => {
+    const availabilityResponse = await fetch(
+      `/api/employees/${employee.id}/availability`,
+      {
+        method: 'GET',
+      }
+    )
+    const availability: Availability[] = await availabilityResponse.json()
+    const employeeWithAvailability: EmployeeWithAvailability = {
+      ...employee,
+      availability,
+    }
+    return employeeWithAvailability
+  })
+
+  const employeesWithAvailability: EmployeeWithAvailability[] =
+    await Promise.all(employeesWithAvailabilityPromises)
+
+  return employeesWithAvailability
 }
 
-export default getEmployeeAvailability
+export async function getSingleEmployeeAvailability(
+  availabilityRequestId: string
+): Promise<EmployeeWithAvailability> {
+  const employeeResponse = await fetch(
+    `/api/availability-requests/${availabilityRequestId}/employee`,
+    {
+      method: 'GET',
+    }
+  )
+  const employee: Employee = await employeeResponse.json()
+
+  const availabilityResponse = await fetch(
+    `/api/availability-requests/${availabilityRequestId}/availability`,
+    {
+      method: 'GET',
+    }
+  )
+  const availability = await availabilityResponse.json()
+
+  const employeeWithAvailability: EmployeeWithAvailability = {
+    ...employee,
+    availability,
+  }
+
+  return employeeWithAvailability
+}

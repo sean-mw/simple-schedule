@@ -16,13 +16,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import { Availability, Employee } from '@prisma/client'
 import EditEmployeeModal from './EditEmployeeModal'
 import AvailabilityTableCell from './AvailabilityTableCell'
-
-type EmployeeAvailabilityData = {
-  email: string
-  availabilities: Availability[]
-}
-
-type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
+import { EmployeeWithAvailability } from './EmployeeAvailability'
 
 type AvailabilityTableProps = {
   startOfRange: Date
@@ -91,7 +85,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                 </TableCell>
                 <TableCell>{employee.employeeNumber}</TableCell>
                 {daysInRange.map((day) => {
-                  const availability = employee.availabilities
+                  const availability = employee.availability
                     .filter((a) => isSameDay(a.day, day))
                     .sort(
                       (a, b) => a.startTime.valueOf() - b.startTime.valueOf()

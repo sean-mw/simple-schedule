@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import Modal from './Modal'
-import axios from 'axios'
 import EmployeeForm from './EmployeeForm'
 import { Employee } from '@prisma/client'
 
@@ -35,12 +34,16 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
     setStatus('loading')
     try {
-      const employeeReponse = await axios.post('/api/employees', employee)
+      const employeeResponse = await fetch(`/api/employees`, {
+        method: 'POST',
+        body: JSON.stringify(employee),
+      })
+      const createdEmployee = await employeeResponse.json()
       setStatus('success')
 
       setTimeout(() => {
         setStatus('idle')
-        onAddEmployee(employeeReponse.data)
+        onAddEmployee(createdEmployee)
         onClose()
       }, 500)
     } catch (error) {

@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "postinstall": "prisma generate",
-    "db:start": "docker-compose -f prisma/compose.yml up -d && sleep 5 && prisma db push",
+    "db:start": "docker-compose -f prisma/compose.yml up -d && sleep 3 && prisma db push",
     "db:stop": "docker-compose -f prisma/compose.yml down",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "ts-node ./scripts/db-deploy.ts",

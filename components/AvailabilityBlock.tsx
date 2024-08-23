@@ -1,8 +1,8 @@
 import { Box, IconButton, useTheme } from '@mui/material'
 import { Availability } from '@prisma/client'
-import axios from 'axios'
 import { format } from 'date-fns'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { useSearchParams } from 'next/navigation'
 
 type AvailabilityBlockProps = {
   availability: Availability
@@ -14,6 +14,8 @@ const AvailabilityBlock: React.FC<AvailabilityBlockProps> = ({
   onDeleteAvailability,
 }) => {
   const theme = useTheme()
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
 
   const startHour = format(availability.startTime, 'h:mm a')
   const endHour = format(availability.endTime, 'h:mm a')
@@ -40,9 +42,12 @@ const AvailabilityBlock: React.FC<AvailabilityBlockProps> = ({
           size="small"
           color="error"
           onClick={async () => {
-            await axios.delete(`/api/availabilities`, {
-              data: availability,
-            })
+            await fetch(
+              `/api/availability-requests/${token}/availability/${availability.id}`,
+              {
+                method: 'DELETE',
+              }
+            )
             onDeleteAvailability(availability)
           }}
         >

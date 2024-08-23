@@ -7,16 +7,11 @@ import { signIn, useSession } from 'next-auth/react'
 import Spinner from '@/components/Spinner'
 import { Box, Alert } from '@mui/material'
 import Navbar from '@/components/Navbar'
-import getEmployeeAvailability from '@/lib/get-employee-availability'
-import EmployeeAvailability from '@/components/EmployeeAvailability'
-import { Availability, Employee } from '@prisma/client'
-
-export type EmployeeAvailabilityData = {
-  email: string
-  availabilities: Availability[]
-}
-
-export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
+import { getAllEmployeeAvailability } from '@/lib/get-employee-availability'
+import EmployeeAvailability, {
+  EmployeeWithAvailability,
+} from '@/components/EmployeeAvailability'
+import { Employee } from '@prisma/client'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -31,7 +26,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const employeesData = await getEmployeeAvailability()
+        const employeesData = await getAllEmployeeAvailability()
         setEmployees(employeesData)
       } catch (err) {
         setErrorMessage('Error fetching employee availability data.')
@@ -57,7 +52,7 @@ export default function Dashboard() {
   }
 
   const onAddEmployee = (employee: Employee) => {
-    setEmployees([...(employees ?? []), { ...employee, availabilities: [] }])
+    setEmployees([...(employees ?? []), { ...employee, availability: [] }])
   }
 
   const onEditEmployee = (current: Employee, updated: Employee | undefined) => {
@@ -69,7 +64,7 @@ export default function Dashboard() {
       setEmployees(
         employees?.map((e) =>
           e.email === current.email
-            ? { ...updated, availabilities: e.availabilities }
+            ? { ...updated, availability: e.availability }
             : e
         )
       )

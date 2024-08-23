@@ -1,19 +1,12 @@
 import { testApiHandler } from 'next-test-api-route-handler'
 import * as appHandler from './route'
-import { it, expect, beforeEach } from '@jest/globals'
+import { it, expect } from '@jest/globals'
 import prisma from '@/lib/prisma'
 import { compare, hash } from 'bcryptjs'
-
-async function resetDatabase() {
-  await prisma.user.deleteMany()
-}
-
-beforeEach(async () => {
-  await resetDatabase()
-})
+import { v4 as uuidv4 } from 'uuid'
 
 it('POST creates a new user and returns 201', async () => {
-  const email = 'test@example.com'
+  const email = `${uuidv4()}@example.com`
   const password = 'password123'
 
   await testApiHandler({
@@ -40,7 +33,7 @@ it('POST creates a new user and returns 201', async () => {
 })
 
 it('POST returns 400 if user already exists', async () => {
-  const email = 'test@example.com'
+  const email = `${uuidv4()}@example.com`
   const password = await hash('password123', 10)
 
   await prisma.user.create({

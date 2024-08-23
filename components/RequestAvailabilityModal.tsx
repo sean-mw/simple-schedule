@@ -10,7 +10,6 @@ import {
 } from '@mui/material'
 import Modal from './Modal'
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import Form from './Form'
 import { Employee } from '@prisma/client'
 
@@ -58,14 +57,21 @@ export default function RequestAvailabilityModal({
     e.preventDefault()
 
     setErrorMessage('')
-    const emails = selectedEmployees.map((e) => e.email)
-    if (emails.length === 0) {
+    if (selectedEmployees.length === 0) {
       setStatus('error')
       return setErrorMessage('Please select at least one employee.')
     }
     try {
       setStatus('loading')
-      await axios.post('/api/availability-requests', { emails })
+      const responsePromises = selectedEmployees.map(async (employee) => {
+        return await fetch('/api/availability-requests', {
+          method: 'POST',
+          body: JSON.stringify({
+            employeeId: employee.id,
+          }),
+        })
+      })
+      await Promise.all(responsePromises)
       setStatus('success')
       setTimeout(() => {
         setStatus('idle')
