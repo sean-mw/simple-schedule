@@ -31,6 +31,19 @@ type AvailabilityTableProps = {
   onDayClick?: (day: Date) => void
 }
 
+const renderTableCell = (children: React.ReactNode, key?: string | number) => {
+  return (
+    <TableCell
+      key={key}
+      sx={{
+        borderRight: '1px solid lightgrey',
+      }}
+    >
+      {children}
+    </TableCell>
+  )
+}
+
 const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   startOfRange,
   endOfRange,
@@ -61,7 +74,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              {renderTableCell(
                 <Box
                   display="flex"
                   justifyContent="space-between"
@@ -78,18 +91,24 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                     </Fab>
                   )}
                 </Box>
-              </TableCell>
-              <TableCell>Employee Number</TableCell>
-              {daysInRange.map((day, index) => (
-                <TableCell key={index}>{format(day, 'EEE, MMM d')}</TableCell>
-              ))}
+              )}
+              {renderTableCell('Employee Number')}
+              {daysInRange.map((day, index) =>
+                renderTableCell(format(day, 'EEE, MMM d'), index)
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
             {employees.map((employee) => (
               <TableRow key={employee.email}>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {renderTableCell(
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <Typography fontWeight="bold">
                       {employee.firstName} {employee.lastName}
                     </Typography>
@@ -105,7 +124,7 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
                       </IconButton>
                     )}
                   </Box>
-                </TableCell>
+                )}
                 <TableCell>{employee.employeeNumber}</TableCell>
                 {daysInRange.map((day) => {
                   const availability = employee.availability
