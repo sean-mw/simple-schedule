@@ -1,10 +1,10 @@
 'use client'
 
-import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import theme from '@/styles/theme'
 import { Suspense } from 'react'
+import { SessionProvider } from 'next-auth/react'
 import Spinner from '@/components/Spinner'
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'

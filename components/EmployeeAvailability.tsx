@@ -13,10 +13,11 @@ export type EmployeeAvailabilityData = {
 export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
 
 type EmployeeAvailabilityProps = {
-  title: string
+  title?: string
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
   onEditEmployee?: (current: Employee, updated: Employee | undefined) => void
+  onAddEmployee?: (employee: Employee) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -25,6 +26,7 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
   employees,
   onDeleteAvailability,
   onEditEmployee,
+  onAddEmployee,
   onDayClick,
 }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
@@ -55,9 +57,11 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
 
   return (
     <>
-      <Typography variant="h4" align="center" gutterBottom>
-        {title}
-      </Typography>
+      {title && (
+        <Typography variant="h4" align="center" gutterBottom>
+          {title}
+        </Typography>
+      )}
       <IncrementalCalendar
         startOfIncrement={startOfCurrentRange}
         endOfIncrement={endOfCurrentRange}
@@ -70,6 +74,7 @@ const EmployeeAvailability: React.FC<EmployeeAvailabilityProps> = ({
         employees={employees}
         onDeleteAvailability={onDeleteAvailability}
         onEditEmployee={onEditEmployee}
+        onAddEmployee={onAddEmployee}
         onDayClick={onDayClick}
       />
     </>

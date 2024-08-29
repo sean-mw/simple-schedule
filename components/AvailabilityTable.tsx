@@ -11,12 +11,15 @@ import {
   Box,
   IconButton,
   Typography,
+  Fab,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
+import AddIcon from '@mui/icons-material/Add'
 import { Availability, Employee } from '@prisma/client'
 import EditEmployeeModal from './EditEmployeeModal'
 import AvailabilityTableCell from './AvailabilityTableCell'
 import { EmployeeWithAvailability } from './EmployeeAvailability'
+import EmployeeModal from './EmployeeModal'
 
 type AvailabilityTableProps = {
   startOfRange: Date
@@ -24,6 +27,7 @@ type AvailabilityTableProps = {
   employees: EmployeeWithAvailability[]
   onDeleteAvailability?: (availability: Availability) => void
   onEditEmployee?: (current: Employee, updated: Employee | undefined) => void
+  onAddEmployee?: (employee: Employee) => void
   onDayClick?: (day: Date) => void
 }
 
@@ -33,8 +37,10 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
   employees,
   onDeleteAvailability,
   onEditEmployee,
+  onAddEmployee,
   onDayClick,
 }) => {
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false)
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee>()
 
   const getDaysInRange = (start: Date, end: Date) => {
@@ -55,7 +61,24 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Employee</TableCell>
+              <TableCell>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  Employee
+                  {onAddEmployee && (
+                    <Fab
+                      color="primary"
+                      size="small"
+                      onClick={() => setShowEmployeeModal(true)}
+                    >
+                      <AddIcon />
+                    </Fab>
+                  )}
+                </Box>
+              </TableCell>
               <TableCell>Employee Number</TableCell>
               {daysInRange.map((day, index) => (
                 <TableCell key={index}>{format(day, 'EEE, MMM d')}</TableCell>
@@ -110,6 +133,13 @@ const AvailabilityTable: React.FC<AvailabilityTableProps> = ({
           onClose={() => setEmployeeToEdit(undefined)}
           employeeToEdit={employeeToEdit}
           onEditEmployee={onEditEmployee}
+        />
+      )}
+      {onAddEmployee && showEmployeeModal && (
+        <EmployeeModal
+          onClose={() => setShowEmployeeModal(false)}
+          onAddEmployee={onAddEmployee}
+          employees={employees}
         />
       )}
     </>

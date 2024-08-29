@@ -2,6 +2,35 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getTransporter } from '@/lib/nodemailer'
 
+export async function GET(request: Request) {
+  const userId = request.headers.get('x-user-id')
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const availabilityRequests = await prisma.availabilityRequest.findMany({
+      where: { employee: { userId } },
+    })
+
+    if (!availabilityRequests) {
+      return NextResponse.json(
+        { error: 'Availability requests not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(availabilityRequests)
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json(
+      { error: 'Failed to fetch availability requests' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: Request) {
   const userId = request.headers.get('x-user-id')
 

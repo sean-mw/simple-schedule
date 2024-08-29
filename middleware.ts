@@ -18,5 +18,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/employees/:path*', '/api/availability-requests'],
+  matcher: [
+    '/api/employees/:path*',
+    '/api/availability-requests',
+    '/api/shift-types/:path*',
+  ],
 }

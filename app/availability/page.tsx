@@ -8,7 +8,7 @@ import AvailabilityModal from '@/components/AvailabilityModal'
 import { Box, Typography } from '@mui/material'
 import Navbar from '@/components/Navbar'
 import { getSingleEmployeeAvailability } from '@/lib/get-employee-availability'
-import { type Availability } from '@prisma/client'
+import { ShiftType, type Availability } from '@prisma/client'
 import { useSearchParams } from 'next/navigation'
 
 export default function Availability() {
@@ -17,6 +17,7 @@ export default function Availability() {
   const [employee, setEmployee] = useState<EmployeeWithAvailability>()
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false)
   const [clickedDay, setClickedDay] = useState<Date | null>(null)
+  const [shiftTypes, setShiftTypes] = useState<ShiftType[]>([])
 
   useEffect(() => {
     if (!token) return
@@ -25,6 +26,13 @@ export default function Availability() {
       try {
         const employee = await getSingleEmployeeAvailability(token)
         setEmployee(employee)
+        fetch(`/api/user/${employee.userId}/shift-types`, {
+          method: 'GET',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            setShiftTypes(data)
+          })
       } catch (error) {
         console.error('Error fetching employee:', error)
       }
@@ -44,7 +52,7 @@ export default function Availability() {
 
   return (
     <Box>
-      <Navbar hideButtons={true} />
+      <Navbar />
       <Box sx={{ p: 4 }}>
         <EmployeeAvailability
           title={'Select Your Availability'}
@@ -67,12 +75,13 @@ export default function Availability() {
           <AvailabilityModal
             token={token}
             employee={employee}
+            shiftTypes={shiftTypes}
             date={clickedDay}
             onClose={() => setShowAvailabilityModal(false)}
-            onSuccess={(availability: Availability) => {
+            onSuccess={(availability: Availability[]) => {
               setEmployee({
                 ...employee,
-                availability: [...employee.availability, availability],
+                availability: [...employee.availability, ...availability],
               })
             }}
           />

@@ -64,7 +64,7 @@ const Modal: React.FC<ModalProps> = ({
           alignItems: 'center',
         }}
       >
-        <Typography variant="h6">{title}</Typography>
+        {title}
         <IconButton onClick={onClose} aria-label="close">
           <CloseIcon />
         </IconButton>

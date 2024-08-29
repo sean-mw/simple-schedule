@@ -11,16 +11,18 @@ import {
 import Modal from './Modal'
 import { useEffect, useState } from 'react'
 import Form from './Form'
-import { Employee } from '@prisma/client'
+import { AvailabilityRequest, Employee } from '@prisma/client'
 
 interface RequestAvailabilityModalProps {
   employees: Employee[]
   onClose: () => void
+  onSuccess: (availabilityRequest: AvailabilityRequest[]) => void
 }
 
 export default function RequestAvailabilityModal({
   employees,
   onClose,
+  onSuccess,
 }: RequestAvailabilityModalProps) {
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
   const [selectAll, setSelectAll] = useState(false)
@@ -64,19 +66,25 @@ export default function RequestAvailabilityModal({
     try {
       setStatus('loading')
       const responsePromises = selectedEmployees.map(async (employee) => {
-        return await fetch('/api/availability-requests', {
-          method: 'POST',
-          body: JSON.stringify({
-            employeeId: employee.id,
-          }),
-        })
+        const availabilityRequestsResponse = await fetch(
+          '/api/availability-requests',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              employeeId: employee.id,
+            }),
+          }
+        )
+        const availabilityRequests = await availabilityRequestsResponse.json()
+        return availabilityRequests
       })
-      await Promise.all(responsePromises)
+      const availabilityRequests = (await Promise.all(responsePromises)).flat()
       setStatus('success')
       setTimeout(() => {
         setStatus('idle')
         setSelectedEmployees([])
         setSelectAll(false)
+        onSuccess(availabilityRequests)
         onClose()
       }, 500)
     } catch {

@@ -1,24 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import EmployeeModal from '@/components/EmployeeModal'
-import RequestAvailabilityModal from '@/components/RequestAvailabilityModal'
-import { signIn, useSession } from 'next-auth/react'
-import Spinner from '@/components/Spinner'
+import { useSession } from 'next-auth/react'
 import { Box, Alert } from '@mui/material'
-import Navbar from '@/components/Navbar'
 import { getAllEmployeeAvailability } from '@/lib/get-employee-availability'
 import EmployeeAvailability, {
   EmployeeWithAvailability,
 } from '@/components/EmployeeAvailability'
 import { Employee } from '@prisma/client'
+import Spinner from '@/components/Spinner'
 
-export default function Dashboard() {
-  const { data: session, status } = useSession()
+export default function Availability() {
+  const { data: session } = useSession()
   const [employees, setEmployees] = useState<EmployeeWithAvailability[]>()
-  const [showEmployeeModal, setShowEmployeeModal] = useState(false)
-  const [showRequestAvailabilityModal, setShowRequestAvailabilityModal] =
-    useState(false)
+  useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -39,13 +34,6 @@ export default function Dashboard() {
       fetchData()
     }
   }, [employees, session])
-
-  if (status === 'loading' && !loading) {
-    setLoading(true)
-  } else if (status === 'unauthenticated') {
-    signIn()
-    !loading && setLoading(true)
-  }
 
   if (loading) {
     return <Spinner />
@@ -73,33 +61,16 @@ export default function Dashboard() {
 
   return (
     <Box>
-      <Navbar
-        onAddEmployee={() => setShowEmployeeModal(true)}
-        onRequestAvailability={() => setShowRequestAvailabilityModal(true)}
-      />
-      <Box sx={{ p: 4 }}>
+      <Box sx={{ p: 2 }}>
         {errorMessage && (
           <Alert severity="error" sx={{ mb: 4 }}>
             {errorMessage}
           </Alert>
         )}
-        {showEmployeeModal && (
-          <EmployeeModal
-            employees={employees ?? []}
-            onClose={() => setShowEmployeeModal(false)}
-            onAddEmployee={onAddEmployee}
-          />
-        )}
-        {showRequestAvailabilityModal && (
-          <RequestAvailabilityModal
-            employees={employees ?? []}
-            onClose={() => setShowRequestAvailabilityModal(false)}
-          />
-        )}
         <EmployeeAvailability
-          title={'Employee Availability'}
           employees={employees ?? []}
           onEditEmployee={onEditEmployee}
+          onAddEmployee={onAddEmployee}
         />
       </Box>
     </Box>

@@ -62,15 +62,34 @@ it('POST creates a new availability request and returns 201', async () => {
   expect(createdAvailabilityRequest).toMatchObject(availabilityRequestData)
 })
 
-it('GET returns 405 (Method Not Allowed)', async () => {
+it('GET returns all availability requests with a 200 status code', async () => {
+  const availabilityRequest1 = await prisma.availabilityRequest.create({
+    data: {
+      employeeId: employee.id,
+    },
+  })
+  const availabilityRequest2 = await prisma.availabilityRequest.create({
+    data: {
+      employeeId: employee.id,
+    },
+  })
+
   await testApiHandler({
     appHandler,
     test: async ({ fetch }) => {
       const response = await fetch({
         method: 'GET',
+        headers: {
+          'x-user-id': employee.userId,
+        },
       })
 
-      expect(response.status).toBe(405)
+      const json = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(json.length).toBeGreaterThanOrEqual(2)
+      expect(json).toContainEqual(availabilityRequest1)
+      expect(json).toContainEqual(availabilityRequest2)
     },
   })
 })

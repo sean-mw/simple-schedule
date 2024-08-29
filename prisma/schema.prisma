@@ -20,6 +20,7 @@ model User {
     employees     Employee[]
     accounts      Account[]
     sessions      Session[]
+    shiftTypes    ShiftType[]
 
     @@map("users")
 }
@@ -55,6 +56,26 @@ model AvailabilityRequest {
     availability Availability[]
 
     employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+model ShiftType {
+    id   Int    @id @default(autoincrement())
+    name String
+    startTime             DateTime
+    endTime               DateTime
+    color                 ShiftColor
+    userId String
+
+    user User @relation(fields: [userId], references: [id])
+}
+
+enum ShiftColor {
+  Green
+  Yellow
+  Pink
+  Blue
+  Purple
+  Red
 }
 
 model Account {
