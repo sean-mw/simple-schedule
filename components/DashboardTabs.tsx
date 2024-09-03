@@ -6,7 +6,7 @@ import { styled } from '@mui/system'
 import { Tabs } from '@mui/base/Tabs'
 import { TabsList as BaseTabsList } from '@mui/base/TabsList'
 import { Tab as BaseTab, tabClasses } from '@mui/base/Tab'
-import { Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 export default function DashboardTabs() {
   const router = useRouter()
@@ -22,23 +22,25 @@ export default function DashboardTabs() {
   }
 
   return (
-    <Tabs value={pathname} onChange={onTabChange}>
-      <TabsList sx={{ boxShadow: 3 }}>
-        <Tab value="/dashboard/availability">
-          <Typography fontWeight={'bold'}>AVAILABILITY</Typography>
-        </Tab>
-        <Tab value="/dashboard/requests">
-          <Typography fontWeight={'bold'}>REQUESTS</Typography>
-        </Tab>
-      </TabsList>
-    </Tabs>
+    <Box bgcolor="white">
+      <Tabs value={pathname} onChange={onTabChange}>
+        <TabsList sx={{ boxShadow: 3 }}>
+          <Tab value="/dashboard/availability">
+            <Typography fontWeight={'bold'}>AVAILABILITY</Typography>
+          </Tab>
+          <Tab value="/dashboard/requests">
+            <Typography fontWeight={'bold'}>REQUESTS</Typography>
+          </Tab>
+        </TabsList>
+      </Tabs>
+    </Box>
   )
 }
 
 const Tab = styled(BaseTab)(
   ({ theme }) => `
   cursor: pointer;
-  background-color: ${theme.palette.background.default};
+  background-color: white;
   width: 220px;
   padding: 10px 12px;
   margin: 6px;

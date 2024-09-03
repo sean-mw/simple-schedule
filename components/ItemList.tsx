@@ -24,6 +24,7 @@ const ItemList: React.FC<ItemListProps> = ({
         borderRadius: '8px',
         margin: '8px',
         boxShadow: 3,
+        backgroundColor: 'white',
       }}
     >
       <Box padding="16px 24px">
