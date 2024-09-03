@@ -12,12 +12,15 @@ import {
   ListItemSecondaryAction,
   Checkbox,
 } from '@mui/material'
-import { EmployeeWithAvailability } from './EmployeeAvailability'
 import { format, isSameDay } from 'date-fns'
 import { Availability, ShiftType } from '@prisma/client'
 import Form from './Form'
-import { convertToDate, generateDailyTimes } from '@/lib/date-util'
+import { generateDailyTimes } from '@/lib/date-util'
 import { shiftColorMap } from '@/lib/shift-color-map'
+import {
+  AvailabilityWithShiftType,
+  EmployeeWithAvailability,
+} from '@/types/prisma-combined'
 
 type AvailabilityModalProps = {
   token: string
@@ -25,7 +28,7 @@ type AvailabilityModalProps = {
   shiftTypes: ShiftType[]
   date: Date
   onClose: () => void
-  onSuccess: (availability: Availability[]) => void
+  onSuccess: (availability: AvailabilityWithShiftType[]) => void
 }
 
 const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
@@ -58,26 +61,31 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
     setErrorMessage('')
 
     try {
-      let createdAvailability: Availability[] = []
+      let createdAvailabilityWithShiftType: AvailabilityWithShiftType[] = []
       if (shiftTypes.length > 0) {
         if (selectedShiftTypes.length === 0) {
           setStatus('error')
           return setErrorMessage('Please select at least one shift type.')
         }
+        // Check if shift type is already selected
+        const alreadySelected = currentAvailabilities.some((availability) => {
+          return selectedShiftTypes.some(
+            (st) => st.id === availability.shiftTypeId
+          )
+        })
+        if (alreadySelected) {
+          setStatus('error')
+          return setErrorMessage(
+            'One or more shift types already selected for this day.'
+          )
+        }
 
         const availabilityPromises = selectedShiftTypes.map(
           async (shiftType) => {
-            const start = format(shiftType.startTime, 'h:mm a')
-            const end = format(shiftType.endTime, 'h:mm a')
-            const startTime = start.split(' ')[0]
-            const startPeriod = start.split(' ')[1]
-            const endTime = end.split(' ')[0]
-            const endPeriod = end.split(' ')[1]
             const availabilityData = {
               token,
               day: date,
-              startTime: convertToDate(startTime, startPeriod, date),
-              endTime: convertToDate(endTime, endPeriod, date),
+              shiftTypeId: shiftType.id,
             }
 
             const response = await fetch(
@@ -87,50 +95,52 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
                 body: JSON.stringify(availabilityData),
               }
             )
-            return response.json()
+            const availability: Availability = await response.json()
+
+            return {
+              ...availability,
+              shiftType,
+            }
           }
         )
-        createdAvailability = await Promise.all(availabilityPromises)
+        createdAvailabilityWithShiftType =
+          await Promise.all(availabilityPromises)
       } else {
-        const start = convertToDate(startTime!, startPeriod!, date)
-        const end = convertToDate(endTime!, endPeriod!, date)
-
-        if (start >= end) {
-          setStatus('error')
-          return setErrorMessage('End time must be after start time.')
-        }
-
-        for (const availability of currentAvailabilities) {
-          const existingStart = new Date(availability.startTime)
-          const existingEnd = new Date(availability.endTime)
-
-          if (
-            (start >= existingStart && start < existingEnd) ||
-            (end > existingStart && end <= existingEnd) ||
-            (start <= existingStart && end >= existingEnd)
-          ) {
-            setStatus('error')
-            return setErrorMessage(
-              'The selected time overlaps with an existing availability for this day.'
-            )
-          }
-        }
-
-        const availabilityData = {
-          token,
-          day: date,
-          startTime: start,
-          endTime: end,
-        }
-
-        const response = await fetch(
-          `/api/availability-requests/${token}/availability`,
-          {
-            method: 'POST',
-            body: JSON.stringify(availabilityData),
-          }
-        )
-        createdAvailability = [await response.json()]
+        // TODO: Handle manual time selections
+        // const start = convertToDate(startTime!, startPeriod!, date)
+        // const end = convertToDate(endTime!, endPeriod!, date)
+        // if (start >= end) {
+        //   setStatus('error')
+        //   return setErrorMessage('End time must be after start time.')
+        // }
+        // for (const availability of currentAvailabilities) {
+        //   const existingStart = new Date(availability.startTime)
+        //   const existingEnd = new Date(availability.endTime)
+        //   if (
+        //     (start >= existingStart && start < existingEnd) ||
+        //     (end > existingStart && end <= existingEnd) ||
+        //     (start <= existingStart && end >= existingEnd)
+        //   ) {
+        //     setStatus('error')
+        //     return setErrorMessage(
+        //       'The selected time overlaps with an existing availability for this day.'
+        //     )
+        //   }
+        // }
+        // const availabilityData = {
+        //   token,
+        //   day: date,
+        //   startTime: start,
+        //   endTime: end,
+        // }
+        // const response = await fetch(
+        //   `/api/availability-requests/${token}/availability`,
+        //   {
+        //     method: 'POST',
+        //     body: JSON.stringify(availabilityData),
+        //   }
+        // )
+        // createdAvailabilityWithShiftType = [await response.json()]
       }
 
       setStatus('success')
@@ -138,7 +148,7 @@ const AvailabilityModal: React.FC<AvailabilityModalProps> = ({
         setStatus('idle')
         onClose()
       }, 500)
-      onSuccess(createdAvailability)
+      onSuccess(createdAvailabilityWithShiftType)
     } catch (error) {
       setStatus('error')
       return setErrorMessage('Failed to submit availability. Please try again.')

@@ -2,10 +2,11 @@ import { Box, Fab, TableCell } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { Availability } from '@prisma/client'
 import AvailabilityBlock from './AvailabilityBlock'
+import { AvailabilityWithShiftType } from '@/types/prisma-combined'
 
 type AvailabilityTableCellProps = {
   day: Date
-  availability: Availability[]
+  availability: AvailabilityWithShiftType[]
   onDeleteAvailability?: (availability: Availability) => void
   onDayClick?: (day: Date) => void
 }

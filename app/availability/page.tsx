@@ -1,15 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import EmployeeAvailability, {
-  EmployeeWithAvailability,
-} from '@/components/EmployeeAvailability'
 import AvailabilityModal from '@/components/AvailabilityModal'
 import { Box, Typography } from '@mui/material'
 import Navbar from '@/components/Navbar'
 import { getSingleEmployeeAvailability } from '@/lib/get-employee-availability'
 import { ShiftType, type Availability } from '@prisma/client'
 import { useSearchParams } from 'next/navigation'
+import {
+  AvailabilityWithShiftType,
+  EmployeeWithAvailability,
+} from '@/types/prisma-combined'
+import EmployeeAvailability from '@/components/EmployeeAvailability'
 
 export default function Availability() {
   const searchParams = useSearchParams()
@@ -78,7 +80,7 @@ export default function Availability() {
             shiftTypes={shiftTypes}
             date={clickedDay}
             onClose={() => setShowAvailabilityModal(false)}
-            onSuccess={(availability: Availability[]) => {
+            onSuccess={(availability: AvailabilityWithShiftType[]) => {
               setEmployee({
                 ...employee,
                 availability: [...employee.availability, ...availability],

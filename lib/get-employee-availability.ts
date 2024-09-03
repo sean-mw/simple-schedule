@@ -1,4 +1,7 @@
-import { EmployeeWithAvailability } from '@/components/EmployeeAvailability'
+import {
+  AvailabilityWithShiftType,
+  EmployeeWithAvailability,
+} from '@/types/prisma-combined'
 import { Availability, Employee } from '@prisma/client'
 
 export async function getAllEmployeeAvailability(): Promise<
@@ -18,9 +21,29 @@ export async function getAllEmployeeAvailability(): Promise<
       }
     )
     const availability: Availability[] = await availabilityResponse.json()
+
+    const availabilityWithShiftTypePromises: Promise<AvailabilityWithShiftType>[] =
+      availability.map(async (availability) => {
+        const shiftTypeResponse = await fetch(
+          `/api/user/${employee.userId}/shift-types/${availability.shiftTypeId}`,
+          {
+            method: 'GET',
+          }
+        )
+        const shiftType = await shiftTypeResponse.json()
+        return {
+          ...availability,
+          shiftType,
+        }
+      })
+
+    const availabilityWithShiftType = await Promise.all(
+      availabilityWithShiftTypePromises
+    )
+
     const employeeWithAvailability: EmployeeWithAvailability = {
       ...employee,
-      availability,
+      availability: availabilityWithShiftType,
     }
     return employeeWithAvailability
   })
@@ -48,11 +71,30 @@ export async function getSingleEmployeeAvailability(
       method: 'GET',
     }
   )
-  const availability = await availabilityResponse.json()
+  const availability: Availability[] = await availabilityResponse.json()
+
+  const availabilityWithShiftTypePromises: Promise<AvailabilityWithShiftType>[] =
+    availability.map(async (availability) => {
+      const shiftTypeResponse = await fetch(
+        `/api/user/${employee.userId}/shift-types/${availability.shiftTypeId}`,
+        {
+          method: 'GET',
+        }
+      )
+      const shiftType = await shiftTypeResponse.json()
+      return {
+        ...availability,
+        shiftType: shiftType,
+      }
+    })
+
+  const availabilityWithShiftType = await Promise.all(
+    availabilityWithShiftTypePromises
+  )
 
   const employeeWithAvailability: EmployeeWithAvailability = {
     ...employee,
-    availability,
+    availability: availabilityWithShiftType,
   }
 
   return employeeWithAvailability

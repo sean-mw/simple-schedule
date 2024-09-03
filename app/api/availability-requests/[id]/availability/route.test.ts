@@ -3,9 +3,10 @@ import * as appHandler from './route'
 import { it, expect, beforeAll } from '@jest/globals'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
-import { AvailabilityRequest } from '@prisma/client'
+import { AvailabilityRequest, ShiftColor, ShiftType } from '@prisma/client'
 
 let availabilityRequest: AvailabilityRequest
+let shiftType: ShiftType
 
 beforeAll(async () => {
   const user = await prisma.user.create({
@@ -28,15 +29,23 @@ beforeAll(async () => {
       employeeId: employee.id,
     },
   })
+  shiftType = await prisma.shiftType.create({
+    data: {
+      name: 'Morning',
+      startTime: new Date(),
+      endTime: new Date(),
+      userId: user.id,
+      color: ShiftColor.Blue,
+    },
+  })
 })
 
 it('GET returns the availability associated with the availability request', async () => {
   const availability = await prisma.availability.create({
     data: {
       day: new Date(),
-      startTime: new Date(),
-      endTime: new Date(),
       availabilityRequestId: availabilityRequest.id,
+      shiftTypeId: shiftType.id,
     },
   })
   await testApiHandler({
@@ -53,8 +62,6 @@ it('GET returns the availability associated with the availability request', asyn
       expect(json[0]).toMatchObject({
         ...availability,
         day: availability.day.toISOString(),
-        startTime: availability.startTime.toISOString(),
-        endTime: availability.endTime.toISOString(),
       })
     },
   })
@@ -65,9 +72,8 @@ it('POST creates new availability and returns 201', async () => {
 
   const availabilityData = {
     day: new Date(),
-    startTime: new Date(),
-    endTime: new Date(),
     availabilityRequestId: availabilityRequest.id,
+    shiftTypeId: shiftType.id,
   }
 
   await testApiHandler({
@@ -86,8 +92,6 @@ it('POST creates new availability and returns 201', async () => {
       expect(json).toMatchObject({
         ...availabilityData,
         day: availabilityData.day.toISOString(),
-        startTime: availabilityData.startTime.toISOString(),
-        endTime: availabilityData.endTime.toISOString(),
       })
     },
   })

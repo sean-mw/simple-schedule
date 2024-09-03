@@ -18,7 +18,7 @@ export async function DELETE(
 
   try {
     const deletedShiftType = await prisma.shiftType.delete({
-      where: { id: Number(shiftTypeId), userId },
+      where: { id: shiftTypeId, userId },
     })
 
     return NextResponse.json(deletedShiftType)

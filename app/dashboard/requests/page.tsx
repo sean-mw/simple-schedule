@@ -66,17 +66,23 @@ export default function Availability() {
               </Box>
             }
           >
-            {shiftTypes.map((shiftType) => (
-              <ShiftTypeBlock
-                key={shiftType.id}
-                shiftType={shiftType}
-                onDelete={(shiftType: ShiftType) =>
-                  setShiftTypes(
-                    shiftTypes.filter((st) => st.id !== shiftType.id)
-                  )
-                }
-              />
-            ))}
+            {shiftTypes
+              .sort(
+                (a, b) =>
+                  new Date(a.startTime).valueOf() -
+                  new Date(b.startTime).valueOf()
+              )
+              .map((shiftType) => (
+                <ShiftTypeBlock
+                  key={shiftType.id}
+                  shiftType={shiftType}
+                  onDelete={(shiftType: ShiftType) =>
+                    setShiftTypes(
+                      shiftTypes.filter((st) => st.id !== shiftType.id)
+                    )
+                  }
+                />
+              ))}
           </ItemList>
           <ItemList
             title={'Outgoing Requests'}

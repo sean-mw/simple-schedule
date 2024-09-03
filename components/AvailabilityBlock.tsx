@@ -1,11 +1,13 @@
-import { Box, IconButton, useTheme } from '@mui/material'
-import { Availability } from '@prisma/client'
+import { Box, IconButton, Typography } from '@mui/material'
 import { format } from 'date-fns'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useSearchParams } from 'next/navigation'
+import { AvailabilityWithShiftType } from '@/types/prisma-combined'
+import { Availability } from '@prisma/client'
+import { shiftColorMap } from '@/lib/shift-color-map'
 
 type AvailabilityBlockProps = {
-  availability: Availability
+  availability: AvailabilityWithShiftType
   onDeleteAvailability?: (availability: Availability) => void
 }
 
@@ -13,18 +15,17 @@ const AvailabilityBlock: React.FC<AvailabilityBlockProps> = ({
   availability,
   onDeleteAvailability,
 }) => {
-  const theme = useTheme()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const startHour = format(availability.startTime, 'h:mm a')
-  const endHour = format(availability.endTime, 'h:mm a')
+  const startHour = format(availability.shiftType.startTime, 'h:mm a')
+  const endHour = format(availability.shiftType.endTime, 'h:mm a')
 
   return (
     <Box
       key={availability.id}
       sx={{
-        backgroundColor: theme.palette.success.light,
+        backgroundColor: shiftColorMap[availability.shiftType.color],
         borderRadius: '4px',
         padding: '4px 6px',
         fontSize: '12px',
@@ -34,9 +35,12 @@ const AvailabilityBlock: React.FC<AvailabilityBlockProps> = ({
         alignItems: 'center',
       }}
     >
-      <span>
-        {startHour} - {endHour}
-      </span>
+      <Box display="flex" flexDirection="column">
+        <Typography fontWeight="bold">{availability.shiftType.name}</Typography>
+        <span>
+          {startHour} - {endHour}
+        </span>
+      </Box>
       {onDeleteAvailability && (
         <IconButton
           size="small"

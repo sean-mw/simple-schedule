@@ -3,18 +3,9 @@ import * as appHandler from './route'
 import { it, expect, beforeAll } from '@jest/globals'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  AvailabilityRequest,
-  Employee,
-  ShiftColor,
-  ShiftType,
-  User,
-} from '@prisma/client'
+import { ShiftColor, User } from '@prisma/client'
 
 let user: User
-let employee: Employee
-let availabilityRequest: AvailabilityRequest
-let shiftType: ShiftType
 
 beforeAll(async () => {
   user = await prisma.user.create({
@@ -24,20 +15,10 @@ beforeAll(async () => {
       name: 'John',
     },
   })
-  employee = await prisma.employee.create({
-    data: {
-      email: `${uuidv4()}@example.com`,
-      firstName: 'John',
-      lastName: 'Doe',
-      userId: user.id,
-    },
-  })
-  availabilityRequest = await prisma.availabilityRequest.create({
-    data: {
-      employeeId: employee.id,
-    },
-  })
-  shiftType = await prisma.shiftType.create({
+})
+
+it('GET returns correct shift type', async () => {
+  const shiftType = await prisma.shiftType.create({
     data: {
       name: 'Morning',
       startTime: new Date(),
@@ -46,34 +27,22 @@ beforeAll(async () => {
       color: ShiftColor.Blue,
     },
   })
-})
-
-it('GET returns all availability associated with the employee', async () => {
-  const availability = await prisma.availability.create({
-    data: {
-      day: new Date(),
-      availabilityRequestId: availabilityRequest.id,
-      shiftTypeId: shiftType.id,
-    },
-  })
 
   await testApiHandler({
     appHandler,
-    params: { employeeId: String(employee.id) },
+    params: { userId: String(user.id), shiftTypeId: String(shiftType.id) },
     test: async ({ fetch }) => {
       const response = await fetch({
         method: 'GET',
-        headers: {
-          'x-user-id': user.id,
-        },
       })
 
       const json = await response.json()
 
       expect(response.status).toBe(200)
-      expect(json[0]).toMatchObject({
-        ...availability,
-        day: availability.day.toISOString(),
+      expect(json).toEqual({
+        ...shiftType,
+        startTime: shiftType.startTime.toISOString(),
+        endTime: shiftType.endTime.toISOString(),
       })
     },
   })
@@ -85,9 +54,6 @@ it('POST returns 405 (Method Not Allowed)', async () => {
     test: async ({ fetch }) => {
       const response = await fetch({
         method: 'POST',
-        headers: {
-          'x-user-id': user.id,
-        },
       })
 
       expect(response.status).toBe(405)
@@ -101,9 +67,6 @@ it('PUT returns 405 (Method Not Allowed)', async () => {
     test: async ({ fetch }) => {
       const response = await fetch({
         method: 'PUT',
-        headers: {
-          'x-user-id': user.id,
-        },
       })
 
       expect(response.status).toBe(405)
@@ -117,9 +80,6 @@ it('DELETE returns 405 (Method Not Allowed)', async () => {
     test: async ({ fetch }) => {
       const response = await fetch({
         method: 'DELETE',
-        headers: {
-          'x-user-id': user.id,
-        },
       })
 
       expect(response.status).toBe(405)

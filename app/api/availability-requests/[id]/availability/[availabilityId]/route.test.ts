@@ -1,10 +1,9 @@
 import { testApiHandler } from 'next-test-api-route-handler'
 import * as appHandler from './route'
-import { it, expect, beforeAll } from '@jest/globals'
+import { it, expect } from '@jest/globals'
 import prisma from '@/lib/prisma'
 import { v4 as uuidv4 } from 'uuid'
-
-beforeAll(async () => {})
+import { ShiftColor } from '@prisma/client'
 
 it('DELETE removes an availability and returns 200', async () => {
   const user = await prisma.user.create({
@@ -27,12 +26,20 @@ it('DELETE removes an availability and returns 200', async () => {
       employeeId: employee.id,
     },
   })
+  const shiftType = await prisma.shiftType.create({
+    data: {
+      name: 'Morning',
+      startTime: new Date(),
+      endTime: new Date(),
+      userId: user.id,
+      color: ShiftColor.Blue,
+    },
+  })
   const availability = await prisma.availability.create({
     data: {
       day: new Date(),
-      startTime: new Date(),
-      endTime: new Date(),
       availabilityRequestId: availabilityRequest.id,
+      shiftTypeId: shiftType.id,
     },
   })
 
@@ -53,8 +60,6 @@ it('DELETE removes an availability and returns 200', async () => {
       expect(json).toMatchObject({
         ...availability,
         day: availability.day.toISOString(),
-        startTime: availability.startTime.toISOString(),
-        endTime: availability.endTime.toISOString(),
       })
     },
   })

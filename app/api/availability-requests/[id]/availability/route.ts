@@ -24,6 +24,7 @@ export async function GET(
 
     return NextResponse.json(availabilityRequest.availability)
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: 'Failed to fetch availability' },
       { status: 500 }
@@ -39,7 +40,7 @@ export async function POST(
 
   try {
     const body = await request.json()
-    const { day, startTime, endTime } = body
+    const { day, shiftTypeId } = body
 
     const availabilityRequest = await prisma.availabilityRequest.findUnique({
       where: { id },
@@ -56,8 +57,7 @@ export async function POST(
       data: {
         availabilityRequestId: id,
         day,
-        startTime,
-        endTime,
+        shiftTypeId,
       },
     })
 

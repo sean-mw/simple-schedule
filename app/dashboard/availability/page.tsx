@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { Box, Alert } from '@mui/material'
 import { getAllEmployeeAvailability } from '@/lib/get-employee-availability'
-import EmployeeAvailability, {
-  EmployeeWithAvailability,
-} from '@/components/EmployeeAvailability'
+import EmployeeAvailability from '@/components/EmployeeAvailability'
 import { Employee } from '@prisma/client'
 import Spinner from '@/components/Spinner'
+import { EmployeeWithAvailability } from '@/types/prisma-combined'
 
 export default function Availability() {
   const { data: session } = useSession()

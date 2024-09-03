@@ -36,6 +36,7 @@ export async function DELETE(
 
     return NextResponse.json(deletedAvailability)
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: 'Failed to delete availability' },
       { status: 500 }

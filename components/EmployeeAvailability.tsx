@@ -4,13 +4,7 @@ import { Typography, useMediaQuery, useTheme } from '@mui/material'
 import IncrementalCalendar from './IncrementalCalendar'
 import AvailabilityTable from './AvailabilityTable'
 import { Availability, Employee } from '@prisma/client'
-
-export type EmployeeAvailabilityData = {
-  email: string
-  availability: Availability[]
-}
-
-export type EmployeeWithAvailability = Employee & EmployeeAvailabilityData
+import { EmployeeWithAvailability } from '@/types/prisma-combined'
 
 type EmployeeAvailabilityProps = {
   title?: string

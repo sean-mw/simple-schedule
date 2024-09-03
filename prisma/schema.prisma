@@ -9,14 +9,14 @@ generator client {
 }
 
 model User {
-    id            String     @id @default(uuid())
+    id            String      @id @default(uuid())
     name          String
-    email         String?    @unique
-    emailVerified DateTime?  @map("email_verified")
+    email         String?     @unique
+    emailVerified DateTime?   @map("email_verified")
     image         String?
     password      String?
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
     employees     Employee[]
     accounts      Account[]
     sessions      Session[]
@@ -43,11 +43,11 @@ model Employee {
 model Availability {
     id                    Int      @id @default(autoincrement())
     day                   DateTime
-    startTime             DateTime
-    endTime               DateTime
     availabilityRequestId String
+    shiftTypeId           String
 
     availabilityRequest AvailabilityRequest @relation(fields: [availabilityRequestId], references: [id])
+    shiftType           ShiftType           @relation(fields: [shiftTypeId], references: [id])
 }
 
 model AvailabilityRequest {
@@ -59,23 +59,24 @@ model AvailabilityRequest {
 }
 
 model ShiftType {
-    id   Int    @id @default(autoincrement())
-    name String
-    startTime             DateTime
-    endTime               DateTime
-    color                 ShiftColor
-    userId String
+    id             String         @id @default(uuid())
+    name           String
+    startTime      DateTime
+    endTime        DateTime
+    color          ShiftColor
+    userId         String
+    availabilities Availability[]
 
     user User @relation(fields: [userId], references: [id])
 }
 
 enum ShiftColor {
-  Green
-  Yellow
-  Pink
-  Blue
-  Purple
-  Red
+    Green
+    Yellow
+    Pink
+    Blue
+    Purple
+    Red
 }
 
 model Account {
